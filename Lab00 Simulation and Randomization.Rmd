@@ -1,0 +1,92 @@
+---
+title: "Randomization + Simulation"
+output: html_document
+---
+
+## Overview
+
+In this lab we practice how randomize a factorial design. We will simulate an example to show the importance of randomization.
+
+```{r, results= FALSE,message=FALSE}
+## Load relevant libraries
+library(tidyverse)
+library(sf)
+library(spsurvey)
+```
+
+## Experiment Example:
+
+Question: How does competition impact feeding rate of red rock crab?
+
+- Treatment 1: 3 levels of crab density (1 ind, 5 ind, 10 ind).
+- Treatment 2: 2 Types of food: (Squid, Mussel)
+- Response Variable: Difference in weight of food input before and after 2 hours.
+- Design Type: $3\times 2!$ design.
+- Replicate 10 times.
+- For efficiency, we will block through time in case any variables change.
+
+```{r}
+## Define the factorial design.
+food <- c("Squid", "Mussel")
+density <- c(1, 5, 10)
+design <- expand.grid(food = food, density = density, block = 1:10)
+```
+
+## Simulation for the results
+
+- Let's assume that the random noise is Normally distributed with standard deviation $\sigma = 0.8$.
+
+```{r}
+  params <- data.frame(food = rep(food, each = 3), density = rep(density, 2), mean = c(1.75, 10, 11, 0.9, 1.8, 1.83))
+ggplot(data = params, aes(x = density, y = mean, colour = food)) + geom_point()
+```
+
+## Randomize the order for each block.
+
+```{r}
+design.block.rand <- design %>%
+    group_by(block) %>%
+    mutate(sampleOrder = sample(n())) %>%
+    arrange(sampleOrder, .by_group = TRUE) %>%
+    ungroup()
+```
+
+## Simulate Some Data
+
+```{r}
+data.rand <- design.block.rand %>% 
+  group_by(block) %>%
+  mutate(block.effect = rnorm(1, 0, 0.2)) %>%
+  ungroup() %>%
+  left_join(params) %>%
+  mutate(response = rnorm(n(), mean + block.effect, 0.8)) %>%
+  mutate(density = factor(density))
+```
+
+```{r}
+ggplot(data = data.rand, aes(x = density, y = response, colour = food)) + geom_boxplot()
+```
+
+
+## Why is the factorial design so important?
+
+Let's first look at this data by estimating the means in each treatment only. In other words, let's run this experiment ignoring interactions and see what the impact of squid is.
+
+```{r}
+  mod.add <- aov(response ~ food + density, data = data.rand)
+  coef(mod.add)
+```
+
+Whoa! When squid is present, waaay more gets eaten. In fact, we expect to see 5.96 g of squid get eaten per crab present compared with mussel. 
+
+## Now let's analyse the data properly.
+
+```{r}
+  mod.int <- aov(response ~ food*density, data = data.rand)
+  coef(mod.int)
+```
+
+Oh, so it turns out that that squid is preferred but it's actually the interaction of increased competition and the better food that results in a much larger consumption by the crabs. The main effect of squid when compared to mussel is only on average 0.57 g, not  5.96 g!!!
+
+
+## Randomize your own experiment
