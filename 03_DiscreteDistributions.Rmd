@@ -1,0 +1,353 @@
+---
+title: "Discrete Distributions"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+## Mathematical Symbols - Summation
+
+$\sum_{i=1}^N$ - sum from index $i = 1$ to $N$. 
+
+For example, consider $x = (1,2,3,4,5)$, 
+
+$$
+  \sum_{i=1}^5 x_i = 15
+$$
+
+In R this is equivalent to
+```{r}
+x <- c(1,2,3,4,5)
+sum(x)
+```
+
+##  Mathematical Symbols - Product
+
+$\prod_{i=1}^N$ - product from index $i = 1$ to $N$. 
+
+For example, consider $x = (1,2,3,4,5)$, 
+
+$$
+\prod_{i=1}^5 x_i = 120.
+$$
+
+```{r}
+x <- c(1,2,3,4,5)
+prod(x)
+```
+
+## For Loop - Sum and Product
+
+```{r}
+val.sum <- 0 
+for(i in 1:length(x)) val.sum <- val.sum + x[i]
+val.sum
+
+val.prod <- 1 
+for(i in 1:length(x)) val.prod <- val.prod * x[i]
+val.prod
+```
+
+## Discrete  Random Variable
+
+1. Quantity that is a result of a random event denoted as $X$.
+
+1. Takes on non-negative integer values. 
+
+1. Presence/Absence of fish, Count of fish, ...
+
+1. The distribution describing this is called a probability mass function (pmf), which we will generally reference as $f(X)$.
+
+1. When we observe it we will call it $x_i$ for the $i$th observation.
+
+
+## Discrete Probability
+
+1. The chance of a random event occurring.
+
+1. E.g. The chance of observing a male/female fish.
+
+1. We may define this as $X = 0$ if male and $X = 1$ if female.
+
+1. What is the probability of a female fish? Or, $f(X = 1)$?
+
+1. What is the probability of the two observed fish being female? $f(x_1 = 1, x_2 = 1)$?
+
+## Importance of Indepenence
+
+1. If $x_1$ and $x_2$ are independent, then by definition
+
+$$  
+  f(x_1 = 1, x_2 = 1) = f(x_1) \times f(x_2)
+$$
+
+1. Otherwise we say the two events are dependent.
+
+1. (Class discussion)
+
+## Expectation
+
+1. The theoretical or population mean.
+
+$$
+  \mathbf{E}(X) = \sum_{X = 0}^\infty X f(X)
+$$
+```{r}
+## p(male fish) = 0.2, p(female fish) = 0.8
+0*0.2 + 0.8*1
+```
+
+## Sample Mean
+
+1. Assuming a simple random sample of size $n$,
+
+$$
+  \bar{x} = \frac{ \sum_{i=1}^n x_i}{n}
+$$
+
+```{r}
+## p(male fish) = 0.3, p(female fish) = 0.7
+x <- sample(c("male", "female"), 10, prob = c(0.3,0.7), replace = TRUE)
+sum(x == "female")/10
+
+mean(x == "female")
+```
+
+## Variance
+
+$$
+\begin{align}
+  Var(X)   &=& \mathbf{E}[\{X - \mathbf{E}(X)\}^2] \\
+  &=& \mathbf{E}\{X^2 -2 X \mathbf{E}(X) +  \mathbf{E}(X)^2 \} \\
+  &=& \mathbf{E}(X^2) -2 \mathbf{E}\{X \mathbf{E}(X)\} + \mathbf{E}(X)^2 \\
+  &=& \mathbf{E}(X^2) - \mathbf{E}(X)^2
+\end{align}
+$$
+
+## Sample Variance
+
+1. Assuming a simple random sample of size $n$,
+
+$$
+  Var(x_i) = \frac{ \sum_{i=1}^n (x_i - \bar{x})^2 }{n-1}
+$$
+
+```{r}
+## p(male fish) = 0.3, p(female fish) = 0.7
+x <- sample(c("male", "female"), 10, prob = c(0.3,0.7), replace = TRUE)
+avg <- sum(x == "female")/10
+sum(((x == "female") - avg)^2)/9
+
+var((x == "female")*1)
+```
+
+## Sample Variance Bias
+
+```{r}
+  ## Check Variance without that n-1 correction.
+  VarWrong <- function(x){sum((x-mean(x))^2)/length(x)}
+  var.w <- NULL; var.c <- NULL;
+  for(i in 1:1000){
+    smp.data <- rnorm(10, 0, 1.2)
+    var.w <- c(var.w, VarWrong(smp.data))
+  } 
+```
+
+--- 
+    
+```{r}
+  ## Bias of variance
+  mean(var.w - 1.2^2)    
+
+  ## Bias correction factor n/n-1...
+  var.c <- var.w*10/9
+  mean(var.c - 1.2^2)
+```
+
+
+## Covariance
+
+1. Covariance between two random variables is defined as
+
+$$
+  \text{Cov}(X, Y) = \mathbf{E}(XY) - \mathbf{E}(X)\mathbf{E}(Y).
+$$
+1. Not correlated doesn't imply independence.
+
+```{r}
+x <- rnorm(1000, 0, 0.5)
+x2 <- x^2 + rnorm(1000, 0, 0.25)
+cov(x, x2)
+```
+
+
+## Covariance
+
+```{r}
+plot(x, x2)
+```
+
+## Important Rule of Variance!
+
+1. Assuming $x_1$ and $x_2$ are independent.
+1. $Var(x_1 + x_2) = Var(x_1) + Var(x_2)$
+1. If $x_i \sim iid$, 
+$$
+  Var(\sum_{i=1}^n x_i) = n \times Var(x_i) 
+$$
+$$
+  Var(\bar{x}) = \frac{n \times Var(x_i)}{n^2} = \frac{Var(x_i)}{n}
+$$
+
+## Standard Deviation + Error
+
+1. Standard Deviation 
+$$
+  SD(X) = \sqrt{Var(X)}
+$$
+
+1. Standard Erorr = Standard Deviation of the Mean
+
+$$
+  SD(\bar{x}) = \sqrt{Var(\bar{x})} = \frac{SD(x_i)}{\sqrt{n}}
+$$
+
+## Statistic
+
+1. A quantity calculated from sample data.
+
+1. Sea cucumbers
+  - Count on a  single quadrat. Yes
+  - Counts on mulitple quadrats. No
+  - Average from mulitple quadrats. Yes
+
+1. Sample Mean
+1. Sample Variance
+1. Quantiles
+1. Max, Min
+
+## Bernoulli Distribution
+
+1. Presence/Absence with probability $p$. $X \in 0,1$.
+
+1. Mean $\mathbb{E}(X) = p$.
+
+1. Variance $Var(X) = p(1-p)$. 
+
+1. Examples?
+
+## Bernoulli Distribution
+
+```{r}
+  rb <- rbinom(1000, size = 1, prob = 0.7)
+  hist(rb, xlab = "", main = "", freq = FALSE)
+```
+
+## Binomial Distribution 
+
+1. $n$ repeated Binomial trials, with probability of success $p$.
+1. Count number of successes.
+1. Example, number of female fish caught given you caught $n = 10$.
+1. Mean $\mathbb{E}(X) = np$.
+1. Variance $Var(X) = np(1-p)$.
+
+## Binomial Distribution
+
+```{r}
+  rbn <- rbinom(1000, size = 10, prob = 0.7)
+  hist(rbn, xlab = "", main = "", freq = FALSE)
+```
+
+## Geometric Distribution
+
+1. Run a Bernoulli experiment with probability $p$, but stop when you've reached the first success and record number of failures.
+1. Example, need to collect a nudibranch from a tidepool. Count the number of tidepools until you encounter one.
+1. Mean $\mathbb{E}(X) = \frac{1-p}{p}$.
+1. Variance $Var(X) = \frac{1-p}{p^2}$.
+
+## Geometric Distribution
+
+```{r}
+  rg <- rgeom(10000, prob = 0.7) # This returns the number of failures.
+  hist(rg, xlab = "", main = "", freq = FALSE)
+```
+
+
+## Poisson Distribution
+
+1. Count with rate $\lambda$, $X \in 0,1,2,\ldots$.
+1. Can think of it as a Binomial where $p = \frac{\lambda}{n}$ and $n \to \infty$.
+1. Example, any count
+1. Mean $\mathbb{E}(X) = \lambda$.
+1. Variance $Var(X) =\lambda$.
+
+## Poisson Distribution
+
+```{r}
+  rp <- rpois(10000, lambda = 4)
+  hist(rp, main = "", xlab = "", freq = TRUE)  
+```
+
+## Poisson Distribution
+
+```{r}
+  rp <- rpois(10000, lambda = 4)
+  rb <- rbinom(10000, prob = 4/1000000, size = 1000000)
+  par(mfrow = c(1,2))
+  hist(rp, main = "", xlab = "", freq = TRUE)  
+  hist(rp, main = "", xlab = "", freq = TRUE)
+```
+
+## Negative Binomial Distribution 
+
+1. Poisson count with over/under dispersion.
+1. Shape $r$ and Scale $\theta$, $X \in 0,1,2,\ldots$. 
+1. Lots of parameterizations. Always check what you're using. 
+1 Default in R is size $n$ and probability $p$ of a trial. It also can use the mean $\mu = n(1-p)/p$ as we show below.
+
+1. Mean $\mathbb{E}(X) = \frac{n(1-p)}{p}$.
+1. Variance $Var(X) = \frac{n(1-p)}{p^2}$.
+
+1. What count data might need to be modelled with the Negative Binomial?
+
+
+## Negative Binomial Distribution 
+
+```{r}
+  rnb.mu <- rnbinom(10000, mu = 4, size = 5)
+  p <- 1/(1+4/5)
+  rnb.p <- rnbinom(10000, p = p, size = 5)
+
+  hist(rnb.mu, main = "", xlab = "", freq = FALSE)
+  hist(rnb.p, add=TRUE, col = rgb(1, 0, 0, alpha = 0.2), freq = FALSE)
+```
+
+## Poisson Gamma Mixture
+
+Alternatively you can define it as,
+
+$$
+\begin{align}
+  X & \sim \text{Poisson}(\lambda)\\
+  \lambda & \sim \text{Gamma}(r, \theta)
+\end{align}
+$$
+
+```{r}
+  p <- 1/(1+4/5)
+  rnb.p <- rnbinom(10000, p = p, size = 5)
+  scale <- (1-p)/p
+  shape = 5
+  
+  lam <- rgamma(10000, scale = scale, shape = shape)
+  pois.gam <- rpois(10000, lambda = lam)
+```
+
+## Poisson Gamma Mixture
+
+```{r}
+  hist(rnb.p, main = "", xlab = "", freq = FALSE)
+  hist(pois.gam, add=TRUE, col = rgb(1, 0, 0, alpha = 0.2), freq = FALSE)
+```

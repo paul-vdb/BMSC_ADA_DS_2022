@@ -1,0 +1,231 @@
+---
+title: "ADA and DS Tutorial"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+library(glmmTMB)
+library(ggplot2)
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+## Introductions
+
+- Paul (ADA Instructor)
+
+- Garth (DS Instructor)
+
+- Gina (TA)
+
+## Expectations for DS Week 1
+
+- Develop a scientific question that is feasible.
+  - Needs to answer a specific question.
+  - Have an element of scientific study design.
+  - Data collection and analysis.
+  
+- Use a conceptual model to outline the question and relate it to the study design, what factors will influence results.
+
+- Design a Study.
+
+- Write a Proposal.
+
+## Expectations for ADA Week 1
+
+- Statistical Review
+  - Distributions
+  - Random Variables
+  
+- Study Design
+  - Experimental Design
+  - Field Study Design
+
+- Sample Size Calculations
+  - Power + Precision
+
+## Stats Experience?
+
+1. Standard Deviation vs Standard Error
+1. Confidence Interval
+1. T-Test
+1. ANOVA
+1. Linear Model
+1. Model Selection
+1. GLM
+
+## What do you want to learn? 
+
+- Bayesian Statistics
+- Capture-Recapture
+- Occupancy Modelling
+- Multivariate Analysis
+- Survival (Time Until Event) Analysis
+- Time Series Analysis
+- Generalized Additive Models
+
+## Principles of Good Design
+
+1. Keep it simple.
+1. Make strong a priori prediction.
+1. Control for as much as you can (temperature, flow rates, tank effects, time of year, etc.).
+1. Randomize over what you can't control.
+1. Have an analysis plan.
+1. Simulate what you think your outcomes will be.
+1. Ensure enough replication to answer your hypothesis with confidence.
+1. Plan for when things might go wrong.
+
+## A Scientific Design
+
+- Judgement Sampling: You get to choose sites you like. 
+  - They are conveniently located, near a nice hotel, or places you think are optimal to answer your hypothesis.
+  - Not randomly chosen. Good for pilot studies, understanding those specific sites.
+
+- Scientific Sampling: You get to choose a sample frame that represents the population, and randomly sample from that.
+  - Robust statistical inference.
+  - You will be able to understand the area as a whole.
+
+## Importance of a Random Sample
+
+```{r, echo=FALSE}
+knitr::include_graphics("./figures/survivorship-bias1.jpg", dpi = 125)
+```
+
+## Importance of a Random Sample
+
+
+```{r, echo=FALSE}
+knitr::include_graphics("./figures/survivor_bias_planes.jpeg", dpi = 100)
+```
+
+
+## Scope of Inference
+
+- What does your sample represent?
+  - If you select random beaches for measuring clam abundance in Barkley Sound (The Whole Sound)
+  - If you can only access 10 Beaches, and randomly select 5, (It's those 10 beaches you can access). We just hope that accessibility doesn't impact trend.
+
+- Experimental Design, This is more focused on what the limitation of an experiment on what is being observed. 
+  - Do animals behave different in a lab?
+  - Is physiology impacted by the environment where you collected the specimen?
+
+
+## Sample Units
+
+- The unit of measurement in the study. 
+  - Plankton tow?
+  - Individuals within Plankton tow?
+  - Bay with repeated sampling within?
+
+- Experimental Unit: Unit of measurement in the experiment...
+  - Tank with animals in it?
+  - Animals within a tank?
+
+## Variance
+
+- A measure of the amount of randomness in the sample.
+
+```{r, echo = FALSE}
+x <- seq(-4,8, by = 0.1)
+var1 <- 1.2
+var2 <- 5.5
+var3 <- 0.1
+mu <- 1.7
+ggplot() + geom_line(aes(x = x, y = dnorm(x, mu, sd = sqrt(var1)))) + 
+  geom_line(aes(x = x, y = dnorm(x, mu, sd = sqrt(var2))), col = 'red') +
+  geom_line(aes(x = x, y = dnorm(x, mu, sd = sqrt(var3))), col = 'blue') +
+    ylab("Density") + xlab("X")
+```
+
+## Discuss
+
+- Give me an example of something with very high variance that you might want to study?
+- Give me an example of very low variance?
+
+- How might you design a study to reduce the amount of variance?
+
+## Replication (Independent Samples)
+
+```{r, echo = FALSE}
+n <- 2:100
+var <- 1.2
+mu <- 1.7
+dat <- data.frame(n = n, mu = mu, se1 = sqrt(var1/n), se2 = sqrt(var2/n), se3 = sqrt(var3/n))
+ggplot(data = dat, aes(x = n, y = se1) ) + geom_line() + 
+  geom_line(aes(y = se2), col = 'red') +
+  geom_line(aes(y = se3), col = 'blue') + ylab("Standard Error") + xlab("Sample Size")
+```
+
+## Repeated Sampling
+
+- Let's assume a sample size of 10 independent individuals/sites.
+
+```{r, echo = FALSE}
+ind.var <- rnorm(10, 0, 0.6)
+var <- 1.2
+mu <- 1.7
+dat <- data.frame(u = ind.var)
+design <- NULL
+for(i in 1:10) {design <- rbind(design, data.frame(u = ind.var[i], id = i, rep = 1:50, val = rnorm(50, 1.7, sd = sqrt(var)) + ind.var[i]))}
+
+se.i <- data.frame(rep = 1, se = sqrt(var/10))
+for(i in 2:50)
+{
+  dat.i <- design[design$rep <= i,]
+  mod.i <- glmmTMB(data = dat.i, val ~ 1 + (1|id))
+  se.i <- rbind(se.i, data.frame(rep = i, se= summary(mod.i)$coefficients[[1]][,2]))
+}
+
+ggplot(data = se.i, aes(x = rep, y = se) ) + geom_line() + ylab("Standard Error") + xlab("Sample Size") + geom_line(aes(x = 1:50, y = sqrt(var/seq(10, 500, by = 10))), col = 'red')
+
+```
+
+## When should we replicate vs repeat?
+
+- Cost of getting to site is high and within site variability is high.
+- No within vs between trends.
+- Low between variance (nearly independent)
+
+## High Within Variance/Low Between
+
+- Let's assume a sample size of 10 independent individuals/sites.
+
+```{r, echo = FALSE}
+ind.var <- rnorm(10, 0, 0.1)
+var <- 2
+mu <- 1.7
+dat <- data.frame(u = ind.var)
+design <- NULL
+for(i in 1:10) {design <- rbind(design, data.frame(u = ind.var[i], id = i, rep = 1:50, val = rnorm(50, 1.7, sd = sqrt(var)) + ind.var[i]))}
+
+se.i <- data.frame(rep = 1, se = sqrt(var/10))
+for(i in 2:50)
+{
+  dat.i <- design[design$rep <= i,]
+  mod.i <- glmmTMB(data = dat.i, val ~ 1 + (1|id))
+  se.i <- rbind(se.i, data.frame(rep = i, se= summary(mod.i)$coefficients[[1]][,2]))
+}
+
+ggplot(data = se.i, aes(x = rep, y = se) ) + geom_line() + ylab("Standard Error") + xlab("Sample Size") + geom_line(aes(x = 1:50, y = sqrt(var/seq(10, 500, by = 10))), col = 'red')
+```
+
+
+## Discuss
+
+- Describe a study to measure ctenophore species richness in Barkley Sound.
+  - Define what the sample unit is, how you might select locations, variables that might influence density and variability.
+
+- Describe a study to measure what temperature does to ctenophore ciliary beat rate?
+  - Describe how you might measure this, what the sample unit is, how you might select locations, variables that might influence density and variability.
+
+- Develop a hypothesis about ctenophore and then describe how you might answer it.
+
+## Research Question (Experimental)
+
+- Chat with Gina in the car
+
+## Research Qestion (Observational)
+
+- Chat with Gina in the car
+
+## Independent DS Work Time
+
