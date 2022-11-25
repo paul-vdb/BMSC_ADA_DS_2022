@@ -1,0 +1,158 @@
+---
+title: "Sample Size + Power"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+library(emmeans)
+library(tidyverse)
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+## Purpose of Today
+
+- Understand the expected result of your experiment.
+- Are you sampling sufficiently?
+- Is your design optimal?
+
+## Type I Error
+
+- Probably of falsely rejecting a TRUE $H_0$.
+
+```{r, echo = FALSE}
+  dat.h0 <- data.frame(x = seq(-10,10, by = 0.1))
+  dat.h0$f <- dnorm(dat.h0$x, 0, 2 )
+plot.pow <- ggplot(dat.h0, aes(x=x, y=f)) + geom_line() +   geom_ribbon(data = dat.h0 %>% filter(x > qnorm(0.975,0,2)), fill = 'green', aes(x=x,ymax=f),ymin=0,alpha=0.3) + geom_vline(aes(xintercept = qnorm(0.975,0,2)), linetype = 'dashed') +
+    theme_classic()
+plot.pow
+```
+
+## Type II Error
+
+- Probably of not rejecting $H_0$, when $H_0$ is false.
+
+```{r, echo = FALSE}
+  dat.h1 <- data.frame(x = seq(-5,15, by = 0.1))
+  dat.h1$f <- dnorm(dat.h1$x, 4.5, 2 )
+plot.pow <- plot.pow + 
+    geom_line(data = dat.h1, aes(x=x,y=f), colour = "red") +  
+    geom_ribbon(data = dat.h1 %>% filter(x < qnorm(0.975,0,2)), fill = 'red', aes(x=x,ymax=f),ymin=0,alpha=0.3)
+plot.pow
+```
+
+## Power
+
+- Probability of correctly rejecting a false $H_0$.
+
+```{r, echo = FALSE}
+plot.pow <- plot.pow  + 
+    geom_ribbon(data = dat.h1 %>% filter(x > qnorm(0.975,0,2)), fill = 'blue', aes(x=x,ymax=f),ymin=0,alpha=0.3)
+plot.pow
+```
+
+## Controlling Error
+
+- Reduce variance
+  - Good design.
+  - Pairing observations when possible
+  - Consistency in the lab.
+- Number of replicates reduces standard error.
+- Choosing a reasonable type I Error.
+- Large Type I error leads to higher chance of type II error.
+
+## Choosing a sample size
+
+- More samples, smaller standard error.
+- We usually have a goal of 80% power.
+- Or a level of precision such as (+/- 2.5)
+- If we know variance and can guess effect size, we can figure out sample size needed.
+- Power is good for an experiment with a hypothesis.
+- Precision is better for a field study.
+
+## Power Depends on Effect Size
+
+```{r, echo = FALSE}
+dat.h2 <- data.frame(x = seq(-5,15, by = 0.1))
+dat.h2$f <- dnorm(dat.h1$x, 6, 2 )
+
+ggplot(dat.h0, aes(x=x, y=f)) + geom_line() + 
+  geom_line(data = dat.h1, aes(x=x,y=f), col = 'red') + 
+  geom_ribbon(data = dat.h1 %>% filter(x > qnorm(0.975,0,2)), fill = 'red', aes(x=x,ymax=f),ymin=0,alpha=0.3) + geom_vline(aes(xintercept = qnorm(0.975,0,2)), linetype = 'dashed') +
+    theme_classic()
+```
+
+## Power Depends on Effect Size
+
+```{r echo = FALSE}
+ggplot(dat.h0, aes(x=x, y=f)) + geom_line() + 
+  geom_line(data = dat.h2, aes(x=x,y=f), col = 'red') + 
+  geom_ribbon(data = dat.h2 %>% filter(x > qnorm(0.975,0,2)), fill = 'red', aes(x=x,ymax=f),ymin=0,alpha=0.3) + geom_vline(aes(xintercept = qnorm(0.975,0,2)), linetype = 'dashed') +
+    theme_classic()
+
+```
+
+## Power Depends on Variance
+
+
+```{r, echo = FALSE}
+  dat.h0 <- data.frame(x = seq(-15,15, by = 0.1))
+  dat.h0$f <- dnorm(dat.h0$x, 0, 4 )
+
+  dat.h1 <- data.frame(x = seq(-5,20, by = 0.1))
+  dat.h1$f <- dnorm(dat.h1$x, 6, 4 )
+
+  ggplot(dat.h0, aes(x=x, y=f)) + geom_line() + 
+  geom_line(data = dat.h1, aes(x=x,y=f), col = 'red') + 
+  geom_ribbon(data = dat.h1 %>% filter(x > qnorm(0.975,0,4)), fill = 'red', aes(x=x,ymax=f),ymin=0,alpha=0.3) + geom_vline(aes(xintercept = qnorm(0.975,0,4)), linetype = 'dashed') +
+    theme_classic()
+```
+
+## Power of a Z test
+
+- Sample of size $n = 15$, with variance of $\sigma = 3$.
+- Null Hypothesis: $\mu_0 = 0$.
+- Alternative Hypothesis $\mu_1 > 0$.
+- Assume we want to detect a mean of $\mu_1 = 2.5$.
+- Significance of $\alpha = 0.05$.
+
+```{r}
+  sig.level <- qnorm(0.95, 0, 3/sqrt(15))
+  1-pnorm(sig.level, 2.5, 3/sqrt(15))
+```
+
+---
+
+```{r}
+library(pwr)
+pwr.norm.test(d = 2.5/3, n = 15, 
+              sig.level = 0.05, alternative = 'greater')
+```
+
+## T Test Version
+
+- Things are slightly more complicated as when $H_0$ is false.
+- Need to add a non-centrality parameter to the t distribution.
+
+```{r}
+  sig.level <- qt(0.95, 14)
+  1-pt(sig.level, df = 14, ncp = 2.5/(3/sqrt(15)))
+```
+---
+
+```{r}
+power.t.test(n=15, delta = 2.5,  sd = 3, sig.level = 0.05, 
+             type = "one.sample", alternative = "one.sided") 
+```
+
+ 
+## Choosing the Sample Size
+ 
+```{r}
+pwr.n <- power.t.test(n=3:50, delta = 2.5,  sd = 3, 
+  sig.level = 0.05, type = "one.sample", alternative = "one.sided")
+plot(pwr.n$n, pwr.n$power, type = 'l', xlab = "Sample Size", ylab = "Power")
+abline(h = 0.8, col = 'red')
+```
+
+## Lab Time
+ 
