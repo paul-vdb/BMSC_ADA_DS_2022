@@ -1,0 +1,189 @@
+---
+title: "Power Analysis Lab"
+output: html_notebook
+---
+
+# Overview
+
+In this lab, we practice power analysis via simulation.
+
+```{r}
+## Load relevant libraries
+
+library(ggplot2)
+library(dplyr)
+
+```
+
+
+# Comparing two groups
+
+Imagine we are testing the effect of a pharmaceutical pollutant on the growth of fish larvae in the lab. Let's say we have already done some research in the literature and found that our larvae from our fish species, under normal lab conditions, grows at a rate of 0.2 mm/day, with a standard deviation of 0.05 mm/day. Given this, we can hypothesize that if exposure to the pharmaceutical causes a decrease in growth rate 0f 0.04, on average, we would consider this to be biologically significant. 
+
+Now, imagine we have five fish in a treatment with the pharmaceutical and five control fish. We can figure out our statistical power to detect our anticipated difference in means if we were to use a t-test.
+
+We can calculate power for a t-test to detect the difference we're interested in, given our experimental design, using the power.t.test function from the pwr package.
+
+```{r}
+power.t.test(n = 5,  # number of observations per group
+             delta = 0.04,  # difference in means
+             sd = 0.05,  # standard deviation
+             sig.level = 0.05,  # the significance level
+             type = "two.sample")  # the type of t-test
+```
+
+Our design gives us a statistical power of ~0.20, meaning if we were to repeat our study 100 times, we would only observe a p-value less than 0.05 and correctly detect an effect 20 time. This is low power. Good statistical power is usually considered to be about 0.8.
+
+Remember that the p-value here represents the probability that - assuming our null hypothesis is true that there is no difference between the two groups - we would see a difference in means as great or greater than what we have observed. However, this is in either direction! It's just the absolute magnitude of the effect we're talking about. If your alternative hypothesis is just that the second group is greater than the first, you can use a one-sided t-test and increase your statistical power that way.
+
+But how many fish do we need for each treatment level to get good power of 0.8? We can input a power value and remove the sample size value to calculate this.
+
+```{r}
+power.t.test(delta = 0.04,  # difference in means
+             sd = 0.05,  # standard deviation
+             sig.level = 0.05,  # the significance level
+             type = "two.sample",  # the type of t-test
+             power = 0.8) 
+```
+
+This tells us we need at least 26 fish per treatment to get 'good' statistical power to detect the effect we're interested in.
+
+We can also vary our sample size and re-run the power test to generate a power curve.
+
+```{r}
+sample.size <- seq(from = 10, to = 60, by = 2)  # some sample sizes to test
+
+power.test <- power.t.test(n = sample.size,
+                           delta = 0.04,  # difference in means
+                           sd = 0.05,  # standard deviation
+                           sig.level = 0.05,  # the significance level
+                           type = "two.sample")  # the type of t-test
+
+power.test
+```
+
+Plotting these values will help us visualize the trade-off between sample size in each group and statistical power.
+
+```{r}
+ggplot() +
+  geom_line(aes(x = sample.size,
+                y = power.test$power)) +
+  labs(x = "Sample Size",
+       y = "Power")
+```
+
+# Paired data
+
+Imagine a scenario where, instead of growth, we wish to investigate the effect of the same pharmaceutical on the behaviour of the fish. For example, we could look at movement distance over a period of 10 minutes. Let's assume we have data from a pilot study telling us that over a 10 minute period in our experimental set up, with no exposure, fish move an average of 2 m per 10 minutes, with a standard deviation of 0.5 m. We hypothesize that the pharmaceutical, let's say it's an antidepressant, is going to decrease fish movement, and that a relevant average decrease would be 0.5 m during the 10 minute observation period. 
+
+## Unpaired design
+
+We can test the power of a similar design setup as we used before, five fish in each treatment.
+
+```{r}
+power.t.test(n = 5,
+             delta = 0.5,  # difference in means
+             sd = 0.5,  # standard deviation
+             sig.level = 0.05,  # the significance level
+             type = "two.sample")  # the type of t-test
+```
+
+This gives us a low power of 0.29.
+
+## Paired design
+
+But what if we instead used a setup where we instead observed the same five individuals before and after exposure to the antidepressant and analyzed the results using a paired t-test?
+
+```{r}
+power.t.test(n = 5,
+             delta = 0.5,  # difference in means
+             sd = 0.5,  # standard deviation
+             sig.level = 0.05,  # the significance level
+             type = "paired")  # the type of t-test
+```
+
+Now we get a better power of 0.40 by using a paired design, greater than the unpaired design, because we've essentially cancelled out the effect of individual variation. We also use less fish overall, which is awesome from an animal care standpoint.
+
+# More than two factor levels
+
+## Set up the study
+
+Let's go back to our fish growth example and imagine that we now what to expose the fish to two different doses of the pharmaceutical. Let's call the treatments 'low' and 'high'. Let's assume that the exposure concentration used in our first simulation was the high concentration, we we'll expect a smaller effect for the low exposure. Let's say a difference in growth rate of 0.04 mm/day for the high exposure, and 0.02 mm/day for the low exposure.
+
+Under equal sample sizes by treatment, this gives us a control mean of 0.2, and treatment means of 0.18 for the low and 0.16 for the high, with an overall mean of 0.18 and a residual variance of 0.05.
+
+Let's try the 26 fish per treatment we calculated for the t-test.
+
+## Check power
+
+Now let's check power using a 1-way ANOVA using power.anova.test.
+
+```{r}
+group.means <- c(0.2, 0.18, 0.16)
+
+power.anova.test(groups = length(group.means),  # number of groups
+                 n = 26,  # number of observations per group
+                 between.var = var(group.means),
+                 within.var = 0.05^2)
+```
+
+This gives an OK power of 0.72.
+
+Can you calculate how many fish we would need for this experiment?
+
+# Finding data in the literature
+
+Now that we have some tools for conducting a power analysis. Let's do an example using data from the literature.
+
+Two former UVic undergrad student, Hailey Davies and Haley Robb did a directed study project during Fall program 2017 on the effect of microplastic fibre ingestion on feeding rates of the barnacle, as well as egestion rates of <i>Balanus glandula</i>. They ended up publishing this work and including me (Garth) as a co-author. You can find the paper here:
+https://doi.org/10.1016/j.jembe.2021.151589
+
+In their study, they took 8 rocks, each with 10 barnacles on them and measured feeding rates (cirral beats per minute) in a flume. They then put each rock in a tank, and then exposed half of the tanks to no added microplastic fibres and the other half to concentrations of approximately 70,000 particles/L of pink polyester fibres collected from a fleece blanket. They did this for 24 hours and then tested feeding rates in the flume again and calculated the differences in the before/after feeding rates.
+
+They did not find a significant difference in feeding rates of the barnacles after microplastics exposure.
+
+Let's say we want to repeat this experiment for a different type of microplastic particle, perhaps fragments we have created by grinding some plastic we found on the beach. Let's assume we'll use the same exposure concentration and have a control and an exposure. For simplicity, let's also ignore the tank and rock effects for now and just say we're interested in how many barnacles we should use to detect an effect, if it exists.
+
+So, we'll need a mean and standard deviation for barnacle feeding rate, as well as an expectation of an effect we'd view to be biologically relevant. Let's say a decrease of 20 cirral beats per minute in the treatment. The paper doesn't provide the raw data, but we can extract some means and standard deviations from Figure 4 using an online app:
+https://apps.automeris.io/wpd/
+
+Again, for simplicity, let's just use the mean and standard deviation for change in feeding rate from the control for one their collection sites, Aguilar. We extract a mean value of 8.4 with a standard deviation of 25.5 cirral beats per minute.
+
+# Making a power curve
+
+We'd like to figure out how many barnacles in each treatment (control/exposure) we need to detect our anticipated effect.
+
+## Set up the parameters
+
+First, let's define the parameters for our simulation.
+
+```{r}
+sample.size <- 
+  c(5, 10, 20, 40, 80, 100)  # set up a range of sample sizes to test across
+```
+
+## Make a power curve
+
+```{r}
+barnacle.power.test <- power.t.test(n = sample.size,
+                                    delta = 20, 
+                                    sd = 25.5,
+                                    sig.level = 0.05,
+                                    type = "two.sample")
+
+barnacle.power.test
+
+ggplot() +
+  geom_line(aes(x = sample.size,
+                y = barnacle.power.test$power)) +
+  labs(x = "Sample Size",
+       y = "Power")
+```
+
+So we can suggest that in order to detect our hypothesized effect size with at least 80% power, we would need a minimum number of barnacles per treatment somewhere in the 25-30 range. 
+
+## Assignment
+
+Now, for the power analysis assignment, make a power curve for your study design using either power.t.test or power.anova.test. 
+
+For your expected means and standard deviation you will need to search the literature, or data from past projects or supervisors.

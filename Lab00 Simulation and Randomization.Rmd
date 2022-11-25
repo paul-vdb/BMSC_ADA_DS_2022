@@ -10,8 +10,8 @@ In this lab we practice how randomize a factorial design. We will simulate an ex
 ```{r, results= FALSE,message=FALSE}
 ## Load relevant libraries
 library(tidyverse)
-library(sf)
-library(spsurvey)
+#library(sf)
+#library(spsurvey)
 ```
 
 ## Experiment Example:

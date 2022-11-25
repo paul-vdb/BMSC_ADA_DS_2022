@@ -1,0 +1,629 @@
+---
+title: "Continuous Distributions"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+library(emmeans)
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+## Purpose of Today
+
+- The Normal Distribution and test statistics.
+- Output of linear models.
+
+```{r}
+  load("./data/CukeDatExample.Rda")
+  mod.aov <- aov(mean_length ~ Trt*factor(Dens), data = cuke.length.example)
+  summary(mod.aov)
+```
+
+## Mathematical Symbols - Integration
+
+$\int_{lower}^{upper} f(x)dx$ represents the area under the curve of the function $f(x)$ for some infinitely small slice dx from the set lower and upper bounds. 
+
+```{r, echo = FALSE}
+f <- function(x) x^2
+x <- seq(0, 5, by = 0.1)
+plot(x, f(x), type = 'l')
+```
+
+## Integration 
+
+```{r, echo = FALSE}
+lower <- 0
+upper <- 2
+x.in <- x[x >= lower & x <=upper]
+plot(x, f(x), type = 'l')
+polygon(x = c(lower, x.in, upper), y = c(0, f(x.in), 0), col = "grey")
+```
+
+## Integration
+
+1. We can usually solve an integral by summing over small slices.
+1. The midpoint rule,
+$$
+  \int_0^2 x^2 dx \approx \sum_{i=1}^{100} x_i^2 \times 0.02
+$$
+
+```{r}
+  x <- seq(0.01,2, by = 0.02)
+  sum(x^2*0.02)
+  
+  ## R has its own numerical integration function:
+  integrate(f, 0, 2)
+```
+
+## Continuous Random Variable
+
+1. A random variable $X \in (-\infty, \infty)$. 
+1. Example, measuring fish length.
+1. The distribution describing a continuous random variable is called a probability density function (pdf), which we will generally reference as $f()$.
+
+## Expectation
+
+1. The theoretical or population mean.
+
+$$
+  \mathbf{E}(X) = \int_{-\infty}^\infty X f(X)
+$$
+
+
+## Normal Distribution
+
+1. Randomly occurring around a mean.
+1. Defined by the mean ($\mu$), and variance ($\sigma^2$) and $X \in \mathcal{R}$.
+
+```{r, echo = FALSE}
+x <- seq(-5, 5, by = 0.1)
+plot(x, dnorm(x, mean = 0.5, sd = 0.8), type = "l")
+```
+
+## Standard Normal
+
+1. A normal distribution with mean $\mu = 0$ and variance $\sigma^2 = 1$.
+1. Often referred to as $Z$.
+
+```{r, echo = FALSE}
+z <- seq(-5, 5, by = 0.1)
+plot(z, dnorm(z, mean = 0, sd = 1), type = "l")
+```
+
+## Central Limit Theorem
+
+- For an average, $\bar{x}$,
+
+$$
+  \frac{\bar{x}-\mu}{\sigma/\sqrt{n}} \sim \mathcal{N}(0, 1) \quad \text{as } n\to \infty
+$$
+
+```{r}
+  means <- NULL
+  for(i in 1:100){means <- c(means, mean(rpois(30, 2.5)))}
+  z <- sqrt(30)*(means - 2.5)/sqrt(2.5)
+``` 
+
+## Central Limit Theorem 
+
+```{r}
+  hist(z, freq = FALSE, xlab = "",  main = "")
+  lines(density(z))
+  lines(seq(-3,3,0.1), dnorm(seq(-3,3,0.1), 0, 1), col = 'red')
+```
+
+## Z Test
+
+- If we know the population variance $\sigma^2$, and want to test the difference from some mean $\mu_0$,
+
+$$
+  Z = \frac{\bar{x} - \mu_0}{\sigma}.
+$$
+
+$$
+  Z \sim \text{Normal}(0, 1)
+$$
+
+- Usually we need to estimate $\sigma$.
+
+## T Test
+
+- When we estimate $\sigma^2 \approx \frac{\sum_{i=1}^n(x_i-\bar{x})^2}{n-1} = S^2$.
+
+$$
+  T = \frac{\bar{x} - \mu_0}{S/\sqrt{n}}
+$$
+
+$$
+  T \sim t_{df = n-1}
+$$
+
+## Student t distribution
+
+The T distribution is essentially a standard normal distribution with fatter tails.
+
+```{r, echo = FALSE}
+  plot(seq(-5, 5, by = 0.1), dt(seq(-5, 5, by = 0.1), 3), col = 'black', type = 'l', xlab = 'T', ylab = 'density')
+  lines(seq(-5, 5, by = 0.1), dt(seq(-5, 5, by = 0.1), 5), col = 'red',)
+  lines(seq(-5, 5, by = 0.1), dt(seq(-5, 5, by = 0.1), 10), col = 'blue')
+  lines(seq(-5, 5, by = 0.1), dt(seq(-5, 5, by = 0.1), 20), col = 'purple')
+  legend("topright", legend = c("Df = 3", "Df = 5", "Df = 10", "Df = 20"), col = c("black", "red", "blue", "purple"), lty = 1)
+
+```
+
+## T Test Example
+
+- Sea cucumber movement distance.
+- High Density H TOM vs High Density L TOM.
+- $H_0: \mu_H - \mu_L = 0$.
+- $H_a: \mu_H - \mu_L \neq 0$.
+
+```{r}
+high <- c(9.57, 16.7, 12.9, 8.95, 10.3, 9.88, 11.0)
+low <- c(5.27, 5.22, 6.81, 5.62, 2.83, 4.45, 3.42)
+```
+
+## Step 1: 
+
+```{r}
+avg.high <- mean(high); sd.high <- sd(high)
+avg.low <- mean(low); sd.low <- sd(low)
+boxplot(low, high, ylab = "Average Sea Cucumber Movement (m)", xlab = c("Treatment"))
+```
+
+## Step 2:
+
+- Calculate the test statistic:
+- Mean Difference: $\bar{x}_H - \bar{x}_L$
+- Variance of $\bar{x}_H - \bar{x}_L$,
+
+$$
+\begin{align}
+var(\bar{x}_H - \bar{x}_L) &=& var(\bar{x}_H) + var(\bar{x}_L) \\ 
+           &=& var(x_H)/n_H + var(x_L)/n_L
+\end{align}
+$$
+- Test Statistic: 
+$$
+  T = \frac{\bar{x}_H - \bar{x}_L}{\sqrt{var(x_H)/n_H + var(x_L)/n_L}}
+$$
+
+## Step 3: Degrees of Freedom
+
+- Distribution: $T \sim t_{df}$, where $df$ is...
+
+$$
+  df = \frac{(var(x_H)/n_H + var(x_L)/n_L)^2}{(var(x_H) / n_H)^2 / (n_H – 1)  + (var(x_L) / n_L)^2 / (n_L – 1)}
+$$
+- If we assumed variance was equal this would be much easier, $df = n_H + n_L - 2$.
+
+- We will show that test later.
+
+## Step 3:
+
+
+```{r}
+  nh <- length(high)
+  nl <- length(low)
+  t.dist <- (mean(high) - mean(low))/
+      sqrt(var(high)/length(high) + var(low)/length(low))
+  df.t <- (var(high)/nh + var(low)/nl)^2/
+      ((var(high)/nh)^2/(nh-1) + (var(low)/nl)^2/(nl-1))
+```  
+  
+```{r}    
+  ## T Test Manually
+  (pt(-abs(t.dist), df = df.t, ncp = 0))*2
+```
+
+## T Test using the Function
+
+```{r}
+  t.test(high, low, alternative = "two.sided", var.equal = FALSE)
+```
+
+## Visualize the P-Value
+
+- Example: T = 2, df = 5 P-Value = 0.10
+
+```{r, echo = FALSE}
+  t.vals <- seq(-10,10, by = 0.1)
+  f.t <- dt(t.vals, 5)
+  t.low <- t.vals[t.vals < -2]
+  t.high <- t.vals[t.vals > 2]
+  plot(t.vals, f.t, type = 'l', xlab = "T", ylab= "Density")
+  polygon(c(min(t.low), t.low, max(t.low)), c(0, dt(t.low, 1), 0), col = 'grey')
+  polygon(c(min(t.high), t.high, max(t.high)), c(0, dt(t.high, 1), 0), col = 'grey')
+```
+
+## Visualize the P-Value
+
+- Example: T = 2.6, df = 5, P-Value = 0.048
+
+```{r, echo = FALSE}
+  t.vals <- seq(-10,10, by = 0.1)
+  f.t <- dt(t.vals, 1)
+  t.low <- t.vals[t.vals < -2.6]
+  t.high <- t.vals[t.vals > 2.6]
+  plot(t.vals, f.t, type = 'l', xlab = "T", ylab= "Density")
+  polygon(c(min(t.low), t.low, max(t.low)), c(0, dt(t.low, 1), 0), col = 'grey')
+  polygon(c(min(t.high), t.high, max(t.high)), c(0, dt(t.high, 1), 0), col = 'grey')
+```
+
+## T Test vs Z Test
+
+- For large sample sizes these are equivalent.
+- When we don't know degrees of freedom, we may use Z test as an approximation.
+
+```{r, include=FALSE}
+dat <- data.frame(count = c(rpois(10, 20), rpois(10, 8)), trt = rep(c("A", "B"), each = 10))
+
+```
+```{r}
+summary(lm(count~trt, data = dat))
+```
+
+## T Test vs Z Test
+
+- For non-normal distributions, we assume asymptotically Normal,
+
+```{r}
+summary(glm(count~trt, data = dat, family = "poisson"))
+```
+
+## Chi-Square Distribution
+
+- $\chi^2$ arises by the sum of squared standard normal distributions. 
+- Defined by a single degrees of freedom parameter on $X \in (0, \infty)$.
+- Very useful when considering analysis of variance etc.
+
+
+```{r}
+  norms <- NULL
+  for(i in 1:10000){norms <- c(norms, sum(rnorm(5, 0, 1)^2))}
+```
+
+---
+
+```{r}
+  hist(norms, freq = FALSE, xlab = "", 
+      main = "", breaks = 20)
+  lines(density(norms))
+  lines(seq(0, 10, by = 0.1), dchisq(seq(0, 10, by = 0.1), 5), col = 'red')
+```
+
+## Chi-Square Distribution
+
+- For $SS^2 = \sum_{i=1}^n (x_i-\bar{x})^2$,
+- We can also think of $\frac{SS^2}{\sigma^2} \sim \chi^2_{n-1}$
+
+
+```{r}
+  vars <- NULL
+  for(i in 1:10000){vars <- c(vars, var(rnorm(5, 0, 3.2)))}
+  chi.vars <- vars/(3.2^2/4)
+```  
+
+---  
+  
+```{r}  
+  hist(chi.vars, freq = FALSE, xlab = "", 
+      main = "", breaks = 20)
+  lines(density(chi.vars))
+  lines(seq(0, 60, by = 0.1), dchisq(seq(0, 60, by = 0.1), 5-1), col = 'red')
+```
+
+## Why is this important?
+
+- Is my variance equal to 1 or greater?
+- $H_0: \, \sigma^2 = 1$
+- $H_0: \, \sigma^2 > 1$
+- Test Statistic:
+$$
+  X = \frac{(n_H-1)var(x_l)}{\sigma^2_0}
+$$
+
+```{r}
+  X.test <- var(low)*(length(low) - 1)/1
+  1-pchisq(X.test, length(low)-1) 
+```
+
+---
+
+```{r, echo = FALSE}
+  x.vals <- seq(0,20, by = 0.1)
+  f.t <- dchisq(x.vals, length(low)-1)
+  x.high <- x.vals[x.vals > X.test]
+  plot(x.vals, f.t, type = 'l', xlab = "X", ylab= "Density")
+  polygon(c(min(x.high), x.high, max(x.high)), c(0, dchisq(x.high, length(low)-1), 0), col = 'grey')
+```
+
+## F-Distribution
+
+- Divide two Chi-squared distributions and their degrees of freedom.
+- For $X\sim \chi^2(5)$ and $Y \sim \chi^2(3)$, then for
+
+$$
+  F = \frac{X/5}{Y/3},
+$$
+
+$F \sim F(5,3)$, for $F \in \mathcal{R}^+$.
+
+```{r}
+  chix <- rchisq(10000, df = 5)
+  chiy <- rchisq(10000, df = 3)
+  fxy <- (chix/5)/(chiy/3)
+```
+
+---
+
+```{r}
+  hist(fxy[fxy<50], freq = FALSE, main = "", xlab = "",  
+        ylab = "Density", breaks = 50, 
+        xlim = c(0, 30), ylim = c(0, 0.6))
+  lines(seq(0, 30, by = 0.1), df(seq(0, 30, by = 0.1), 5, 3), 
+      col = 'red')
+  lines(density(fxy[fxy<50], from=0))
+```
+
+## Why is this important?
+
+- Is variance ($\sigma^2$) equal for the high and low sea cucumber data?
+- $H_0: \, \sigma^2_H / \sigma^2_L = 1$
+- $H_a: \, \sigma^2_H / \sigma^2_L \neq 1$ 
+$$
+  F = \frac{SS^2_H/(n_h-1)}{SS^2_L/(n_l-1)} \sim F_{n_h-1, n_L-1}
+$$
+```{r}
+  F.var <- (var(high)/length(high))/(var(low)/length(low))
+  (1-pf(F.var, length(high)-1, length(low)-1)) + pf(1/F.var, length(high)-1, length(low)-1)
+```
+
+---
+
+```{r}
+  var.test(high, low, alt = "two.sided", ratio = 1)
+```
+
+---
+
+```{r, echo = FALSE}
+  f.vals <- seq(0,10, by = 0.1)
+  f.f <- df(f.vals, length(high)-1,length(low)-1)
+  f.low <- f.vals[f.vals < 1/F.var]
+  f.high <- f.vals[f.vals > F.var]
+  plot(f.vals, f.f, type = 'l', xlab = "F", ylab= "Density")
+  polygon(c(min(f.low), f.low, max(f.low)), c(0, df(f.low, length(high) -1, length(low)-1), 0), col = 'grey')
+  polygon(c(min(f.high), f.high, max(f.high)), c(0, df(f.high, length(high) -1, length(low)-1), 0), col = 'grey')
+```
+
+
+## Back to the T Test
+
+```{r}
+  t.test(high, low, alternative = "two.sided", var.equal = FALSE)
+```
+
+## Equal Variance
+
+```{r}
+  t.test(high, low, alternative = "two.sided", var.equal = TRUE)
+```
+
+## Exponential Distribution
+
+- If we have events that occur randomly, then the time between those events is exponentially distributed. 
+- Arises as the time between Poisson events. 
+- It is parameterized by a single waiting time $\theta = 1/\lambda$, where $\lambda$ is the rate of the Poisson distribution. 
+- $X \in [0, \infty)$. 
+- The exponential distribution is 'memoryless'.
+- The mean of an exponential distribution is $1/\lambda$ and the variance is $1/\lambda^2$.
+
+---
+
+```{r}
+  lambda <- 2 # Per second
+  t.unif <- sort(runif(rpois(1, lambda*1000), 0, 1000))
+  t.diff <- diff(c(0, t.unif))
+```
+
+---
+
+```{r}
+  x.e <- seq(0, 100, by = 0.1)
+
+  hist(t.diff, freq = FALSE, xlab = "", main = "", 
+      ylim = c(0, 2), breaks = 20)
+  lines(density(t.diff, from = 0))
+  lines(x.e, dexp(x.e, lambda), col = 'red')
+```
+
+## Gamma Distribution
+
+- Sum of independent exponentially distributed random variables. 
+- Waiting time between two events separated by $n$ other events. 
+- The time difference $X$ is then distributed $X \sim \text{gamma}(n, \lambda)$.
+- The mean of the gamma distribution is $n/\lambda$ and the variance is $n/\lambda^2$.
+
+---
+
+```{r}
+  lambda <- 2 # Per second
+  r.sum <- cumsum(rexp(10000, rate = lambda)) # Per second
+  t.diff <-  diff(c(0, r.sum), lag = 5)
+```
+
+---
+
+```{r}
+  x.gam <- seq(0,100, by = 0.1)
+  hist(t.diff, freq = FALSE, xlab = "", main = "")
+  lines(density(t.diff))
+  lines(x.gam, dgamma(x.gam, 5, lambda), col = 'red')
+```
+
+## Beta Distribution
+
+- A distribution for probabilities.
+- Arises from two independent gamma distributed random variables. 
+- Consider $X \sim \text{gamma}(1, 5)$ and $Y \sim \text{gamma}(3, 5)$. 
+- Then we define a new random variable that is
+$$
+  P = \frac{X}{X+Y},
+$$
+then $P \sim \text{beta}(\text{shape}_1= 1, \text{shape}_2 = 3)$. When both shape parameters are 1, $\text{beta}(1,1) = \mathcal{U}(0,1)$. 
+
+---
+
+```{r}
+  X <- rgamma(1000, 1, 5)
+  Y <- rgamma(1000, 3, 5)
+  P <- X/(X+Y)
+```
+
+---  
+  
+```{r}  
+  x.b <- seq(0, 1, by = 0.05)
+  hist(P, freq = FALSE, xlab = "", main = "")
+  lines(density(P, from = 0, to = 1))
+  lines(x.b, dbeta(x.b, 1, 3), col = 'red')
+```
+
+## Central Limit Theorm Again!
+
+- Let's say we record the amount of time until an animal dies under an acidification event.
+- Let's test whether that time is more than 4 days.
+
+```{r}
+  times <- rexp(35, 1/6)
+  hist(times)
+```
+
+---
+
+```{r}
+  Z <- (times - mean(times))/(sd(times)/sqrt(length(times)))
+  hist(Z)
+```
+
+## How Does the T Test Look?
+
+```{r}
+  se.t <- sd(times)/sqrt(length(times))
+  T <- (mean(times)-4)/se.t
+  T
+  pt(T, df = 34, lower.tail = FALSE)
+```
+
+---
+
+```{r}    
+  test1 <- t.test(times, alternative = 'greater', mu = 4)
+  test1
+```
+
+## How Does the T Test Look for n=7?
+
+```{r}
+  times2 <- times[1:7]
+  Z2 <- (times2-mean(times2))/(sd(times2)/sqrt(7))  
+  hist(Z2)
+```
+
+---
+
+```{r}
+  test2 <- t.test(times2, alternative = 'greater', mu = 4)
+  test2
+```
+
+## Confidence Interval
+
+- Confidence Interval is the interval representing where (1-$\alpha$)% of your values will land if you repeated the experiment multiple times.
+
+- Wald Confidence Interval: For an estimated parameter $\hat{\theta}$ as
+
+$$
+  \hat{\theta} \pm z_{\alpha/2} \times \text{SD}(\hat{\theta}),
+$$
+```{r}
+  qnorm(0.975, 0, 1)
+```
+
+## Confidence Interval Example
+
+```{r}
+  mean.low <- mean(low)
+  se.low <- sd(low)/sqrt(length(low))
+  lci <- mean.low + se.low*qnorm(0.025)
+  uci <- mean.low + se.low*qnorm(0.975)
+  paste('Mean: ', round(mean.low,2), ', 95% CI ( ', round(lci, 2), ', ', round(uci, 2), ')')
+```
+
+## Confidence Interval Example
+
+
+```{r}
+means <- rnorm(1000, mean.low, se.low)
+mean(means > lci & means < uci)
+```
+
+## Confidence Interval: Gamma Distribution
+
+
+```{r}
+  rgam <- rgamma(10, 5, 3)
+  mean.gam <- mean(rgam)
+  se.gam <- sd(rgam)/sqrt(length(rgam))
+  lci <- mean.gam + se.gam*qnorm(0.025)
+  uci <- mean.gam + se.gam*qnorm(0.975)
+  paste('Mean: ', round(mean.gam,2), ', 95% CI ( ', round(lci, 2), ', ', round(uci, 2), ')')
+```
+
+## Confidence Interval: Gamma Distribution
+
+```{r}
+means <- NULL
+for( i in 1:1000 ) means <- c(means, mean(rgamma(10, 5, 3)))
+mean(means > lci & means < uci)
+```
+
+## Confidence Interval: Gamma Distribution
+
+
+```{r}
+  rgam <- rgamma(10, 5, 3)
+  mean.gam <- mean(log(rgam))
+  se.gam <- sd(log(rgam))/sqrt(length(rgam))
+  lci <- exp(mean.gam + se.gam*qnorm(0.025))
+  uci <- exp(mean.gam + se.gam*qnorm(0.975))
+  paste('Mean: ', round(exp(mean.gam),2), ', 95% CI ( ', round(lci, 2), ', ', round(uci, 2), ')')
+```
+
+## Confidence Interval: Gamma Distribution
+
+```{r}
+means <- NULL
+for( i in 1:1000 ) means <- c(means, mean(rgamma(10, 5, 3)))
+mean(means > lci & means < uci)
+```
+
+## Bootstrap Confidence Interval
+
+```{r}
+  avgs <- NULL
+  for(i in 1:1000){
+      avgs <- c(avgs, mean(rgam[sample(length(rgam), 5, replace = TRUE)]))
+  }   
+  ci <- quantile(avgs, c(0.025, 0.975))
+  round(ci, 2)
+```
+
+---
+
+```{r}
+means <- NULL
+for( i in 1:1000 ) means <- c(means, mean(rgamma(10, 5, 3)))
+mean(means > ci[1] & means < ci[2])
+```
