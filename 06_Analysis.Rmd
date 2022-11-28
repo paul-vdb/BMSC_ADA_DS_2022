@@ -1,0 +1,375 @@
+---
+title: "Applied Analysis"
+output:
+  ioslides_presentation:
+    widescreen: true
+---
+
+```{r setup, include=FALSE}
+library(emmeans)
+library(ggplot2)
+library(tidyverse)
+knitr::opts_chunk$set(echo=TRUE, tidy = TRUE)
+
+load("./data/CukeDatExample.Rda")
+cuke.length.example$block <- factor((cuke.length.example$Trial - 1) %/% 8 + 1)
+cuke.length.example$DensHL <- factor(cuke.length.example$Dens, labels = c("L", "H"))
+
+```
+
+## Question 1
+
+- What is my question and hypothesis?
+- Difference between two levels?
+- Difference across many different levels?
+- Trends?
+- Correlation?
+
+## Question 2
+
+- What kind of data do I have?
+- Discrete
+  - Success/Failure
+  - Count
+  - Are there a lot of zeros?
+- Continuous
+  - Positive only?
+  - Whole real line?
+  - Is it a proportion?
+- Is it approximately Normal?
+
+## Sea Cucumbers
+
+- Want to know if they move more when there is less food, and how that varies with density.
+- Positively restricted continuous variable. Might be approximately normal unless there are some zeros...
+
+## Mean Difference:
+
+- Big or small data set (can I rely on the central limit theorem?)
+- Are the observations independent and do they have equal variance?
+
+```{r}
+high <- c(9.57, 16.7, 12.9, 8.95, 10.3, 9.88, 11.0)
+low <- c(5.27, 5.22, 6.81, 5.62, 2.83, 4.45, 3.42)
+
+fit.t <- t.test(high, low, alternative = "two.sided", mu = 0, paired = FALSE, var.equal = TRUE)
+fit.t
+```
+
+## Check Assumptions
+
+```{r}
+  resids <- c(low - mean(low), high - mean(high))
+  hist(resids)
+```
+
+---
+
+```{r}
+  qqnorm(resids)
+  qqline(resids)
+```
+
+## Reporting
+
+- A two sample t-test was used to test the mean difference between the two groups assuming equal variances based on an F-test. We validated the test by visually inspecting the two groups for normality.
+
+- We found that in higher concentrations of total organic material (TOM), sea cucumbers on average moved more (Mean, 95% confidence interval) 6.5 m (4.0, 9.0).
+
+## Visualize it
+
+```{r, echo = FALSE}
+  boxplot(high, low)
+  points(rep(1:2, each = 7), c(high, low), pch = 16)
+```
+
+## Bad t-test
+
+```{r}
+grp1 <- rpois(10, 0.5)
+grp2 <- rpois(10, 0.9)
+t.test(grp1, grp2)
+```  
+
+---
+
+```{r}
+  res <- c(grp1 - mean(grp1), grp2- mean(grp2))
+  hist(res)
+```
+
+---
+
+```{r}
+  qqnorm(res)
+  qqline(res)
+```
+
+
+## Count data difference
+
+- Let's assume we count the total and as a Bionimal distribution, assume that each group is equally likely.
+
+```{r}
+  n <- sum(c(grp1, grp2)); x1 <- sum(grp1); x2 <- sum(grp2)
+  poisson.test(c(x1, x2), r = 1)
+```
+
+---
+
+```{r}
+  binom.test(x1, n, p = 0.5)
+```
+
+---
+
+- Manually compute the p-value and CI
+
+```{r}
+  probs <- dbinom(0:n, prob = 0.5, size = n) 
+  sum(probs[probs <= dbinom(x1, prob = 0.5, size = n)])
+```
+
+## More than one Mean to compare:
+
+- Question 1: Is there a significant treatment effect?
+- Question 2: Which treatment is having an impact?
+
+- Example data: Sea Cucumber distance traveled for high density animals, comparing H-L, H-H, L-L.
+
+## Analysis of Variance
+
+```{r}
+  dat.cuke <- cuke.length.example %>% filter(DensHL == "H")
+  ggplot(data = dat.cuke, aes(x = Trt, y = mean_length)) + 
+      geom_boxplot() + theme_classic()
+```
+
+## Question 1: Anything significant?
+
+- Response Variable: $y_i$ for $i = 1,\ldots,n$.
+- One-Way ANOVA
+- Main idea: Consider Total Sum of Squares ($SS_T$)
+
+$$
+  SS_{T} = \sum_i^{n} (y_i - \bar{y}_{\cdot\cdot})^2
+$$
+
+$$
+  SS_{Error} = \sum_{j=1}^J\sum_i^{n} (y_i - \bar{y}_{\cdot j})^2
+$$  
+
+$$
+  SS_{TOM} = \sum_{j=1}^J\sum_i^{n} (\bar{y}_{\cdot j} - \bar{y}_{\cdot\cdot})^2
+$$  
+
+---
+
+- Remember that sum of squares of normals end up $\chi^2$ distributed.
+- Ratios of $\chi^2$ distributions end up F distributed.
+- If there is a significant treatment effect,
+  - the treatment variance should be LARGER than the Sum of Squared Error (residual variance).
+- Assumptions
+  - The observations are made from each mean group independently and with constant `white noise' error.
+
+$$
+\begin{align}
+  y_{ij} & =  \mu + \tau_j + \epsilon_{ij} \\
+  \epsilon_{ij} & \sim  \mathcal{N}(0, \sigma^2).
+\end{align}
+$$
+
+## Analysis (1-way ANOVA)
+
+```{r}
+  fit.aov <- aov(mean_length ~ Trt, data = dat.cuke)
+  summary(fit.aov)
+```
+
+---
+
+```{r}
+  ## Sum of Squared Error
+  dat.cuke %>% group_by(Trt) %>% 
+    summarize(SS = sum((mean_length - mean(mean_length))^2)) %>%
+    ungroup() %>% summarize(SE = sum(SS)) %>% as.numeric()
+
+  ## Sum of Squared Treatment
+  dat.cuke %>% mutate(avg = mean(mean_length)) %>%
+    group_by(Trt) %>% 
+    summarize(SS = sum((mean(mean_length) - avg)^2)) %>%
+    ungroup() %>% summarize(SS = sum(SS)) %>% as.numeric()
+```
+
+## Is this useful?
+
+- We just get at least one significant effect... Better to analyze the treatment effects!
+
+```{r}
+  em.cuke <- emmeans(fit.aov, specs = ~Trt)
+  em.cuke
+```
+
+## Is this useful?
+
+```{r}
+diff.cuke <- contrast(em.cuke, "pairwise")
+diff.cuke
+```
+
+---
+
+```{r}
+  confint(diff.cuke)
+```
+
+## Is this valid?
+
+```{r}
+  hist(fit.aov$residuals)
+```
+
+
+---
+
+```{r}
+  qqnorm(fit.aov$residuals)
+  qqline(fit.aov$residuals)
+```
+
+## Reporting
+
+- In analysis section: The data were analyzed for a treatment effect using an analysis of variance. We performed a residual analysis to ensure that the model assumptions were met.
+
+- The experiments showed a very strong high TOM effect when compared with low only, animals moved 6.5 m (3.9-9.2) more on average. There was also a strong High to mixed (High-Low) TOM effect, (mean difference: 4.22 m, 1.6-6.9). There was not as much evidence for a difference between mixed and Low TOM. See Figure 1 for a comparison of the different treatments.
+
+
+---
+
+```{r}
+  plot(diff.cuke)
+```
+
+## Analysis (2-way ANOVA)
+
+```{r}
+mod.aov <- aov(mean_length ~ Trt*DensHL, data = cuke.length.example)
+summary(mod.aov)
+mod.aov$coefficients
+```
+
+---
+
+```{r}
+em.cuke <- emmeans(mod.aov, specs = ~Trt*DensHL)
+plot(em.cuke)
+```
+
+---
+
+```{r}
+contrast(em.cuke, "pairwise")
+```
+
+---
+
+```{r}
+TukeyHSD(mod.aov)
+```
+
+## Is it valid?
+
+```{r}
+  resid <- mod.aov$residuals
+  qqnorm(resid)
+  qqline(resid)
+```
+
+---
+
+```{r}
+  hist(resid)
+```
+
+## Maybe a transformation is better?
+
+```{r}
+mod.aov2 <- aov(log(mean_length) ~ Trt*DensHL, data = cuke.length.example)
+summary(mod.aov2)
+```
+
+---
+
+```{r}
+   qqnorm(mod.aov2$residuals)
+   qqline(mod.aov2$residuals)
+```
+
+## Interpreting new results?
+
+```{r}
+emmeans(mod.aov2, specs = ~Trt*DensHL)
+```
+
+---
+
+```{r}
+emmeans(mod.aov2, specs = ~Trt*DensHL, type = 'response')
+```
+
+## ANOVA as a LM
+
+- Factor 1: TOM HH, HL, LL
+- Factor 2: Dens H, L
+$$
+\begin{align}
+  y_{ij} & = \beta_0 + \beta_1 (HL) + \beta_2(LL) + \beta_3(DensH) + \beta_4 (DensH \times HL) + \\ 
+   & \beta_5(DensH\times LL) + \epsilon_{ij} \\
+  \epsilon_{ij} & \sim  \mathcal{N}(0, \sigma^2).
+\end{align}
+$$
+
+---
+
+```{r}
+model.matrix(mean_length ~ Trt*DensHL, data = cuke.length.example)
+```
+
+## ANOVA as LM
+
+```{r}
+fit.lm <- lm(log(mean_length) ~ Trt*DensHL, data = cuke.length.example)
+```
+
+---
+
+```{r, echo = FALSE}
+summary(fit.lm)
+```
+
+
+## Summarizing in an ANOVA way.
+
+```{r}
+  anova(fit.lm)
+```
+
+## Basic T Test as an LM
+
+```{r}
+  datHL <- data.frame(trt = rep(c("H", "L"), each = 7), length = c(high, low))
+  t.test(high, low, var.equal = TRUE)
+```
+
+## Basic T Test as an LM
+
+```{r}
+  fit.t <- lm(length ~  trt, data = datHL)
+  summary(fit.t)
+```
+
+## Next Steps
+
+- Nearly everything is a 'linear' model.
+- We will not use the aov function anymore, but instead us lm() or later glm()
+- We will then distinguish between continuous covariates that fit an actual 'slope' vs categorical variables that are coded as a 'factor' in R.
