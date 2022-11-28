@@ -1,8 +1,6 @@
 ---
 title: "Applied Analysis"
-output:
-  ioslides_presentation:
-    widescreen: true
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
