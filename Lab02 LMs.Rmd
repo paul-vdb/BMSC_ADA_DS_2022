@@ -1,0 +1,180 @@
+---
+title: "Linear Models Lab"
+output: html_notebook
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+
+library(ggplot2)
+library(dplyr)
+library(DHARMa)
+library(glmmTMB)
+library(emmeans)
+```
+
+# Introduction
+
+For this linear model lab, we'll again look to the Davies et al. paper on microplastic fibres and barnacles, but this time we'll work with and re-analyze the raw data, which Hailey has been kind enough to provide us with.
+
+## Explore the data
+
+## Load the data
+
+Start by loading in the data and look at its structure.
+
+```{r}
+barnacle <- read.csv("barnacledata.csv", stringsAsFactors=TRUE)
+
+names(barnacle)
+
+str(barnacle)
+```
+
+## Understand the data
+
+So we have two rocks from each of four sites, for a total of eight rocks. Each rock has 10 barnacles on it, for a total of 80 barnacles. Feeding rates (cirral beats per minute) were measured in a flume for the barnacles on each rock, then one of each rock from a site was exposed to microplastic fibres and the other wasn't over a period of for 24 hours. Then,feeding rates were again tested in the flume the differences in the before/after feeding rates for each barnacle were recorded.
+
+Our research question could be something like: "How does microfibre exposure affect barnacle feeding rates?". 
+
+So we can use the change in feeding rate as a categorical response variable, and treatment - exposure or no exposure - as a categorical predictor variable.
+
+But what about site? The effect of treatment might have varied by site, so we need to also include site as a categorical predictor.
+
+## Plot the data
+
+```{r}
+ggplot(barnacle) +
+  geom_violin(aes(x = treatment,
+                  y = change.beats),
+              alpha = 0.1,
+              fill = "black") +
+  geom_jitter(aes(x = treatment,
+                  y = change.beats),
+              height = 0,
+              width = 0.1) +
+  labs(x = "Treatment",
+       y = "Change in Cirral Beats (bpm)") +
+  facet_wrap(~ site) +
+  theme_bw()
+```
+
+Looking at the above code for the figure, can you figure out what all the different parts are doing and how they contribute to the final plot?
+
+# Build a linear model
+
+## Set up the model structure
+
+Given our data, we can set up a linear model equation that looks like this:
+
+$$
+\begin{gather}
+y_i \sim \text{Normal}(\mu_i, \sigma)\\
+\mu_i = \beta_j + \beta_k
+\end{gather}
+$$
+Where $y_i$ is difference in feeding rate $i$, $\mu_i$ is the expected mean for that data point, $\sigma$ is the standard deviation  of $y$, $\beta_j$ is the coefficient for treatment $j$, and $\beta_k$ is the coefficient for site $k$.
+
+## Fit the model
+
+```{r}
+barnacle.mod <- lm(change.beats ~ treatment + site,
+                   data = barnacle)
+summary(mod1)
+```
+
+What is the above model summary telling us? How do these values relate to our linear equation?
+
+## Diagnose the model
+```{r}
+plot(residuals(barnacle.mod) ~ fitted(barnacle.mod))
+abline(0,0)
+```
+
+What does the residuals vs. fitted plot tell us?
+
+We could also use the plot function to automatically give us four diagnostic plots for the model.
+
+```{r}
+plot(barnacle.mod)
+```
+
+The quantiles plot tells us there could be an issue with normality, but it's not that bad.
+
+# Validate the model
+
+One way to check how well our model matches to our data is to plot the model predictions alongside the real data.
+
+## Predict from the model
+
+```{r}
+barnacle.new <-  # generate new data to predict from
+  expand.grid(site = levels(barnacle$site),
+              treatment = levels(barnacle$treatment))
+
+barnacle.predict <- predict(barnacle.mod,
+                            newdata = barnacle.new,
+                            se.fit = TRUE)  # this will give us SE
+
+barnacle.predict
+```
+
+We can use the standard error of our predicted means to calculate the 95% confidence intervals.
+
+```{r}
+barnacle.new$fit <-
+  barnacle.predict$fit
+
+barnacle.new$upper95 <-
+  with(barnacle.predict,
+       fit + 1.96 * se.fit)
+
+barnacle.new$lower95 <-
+  with(barnacle.predict,
+       fit - 1.96 * se.fit)
+```
+
+
+## Plot the model predictions
+
+```{r}
+ggplot(barnacle) +
+  geom_violin(aes(x = treatment,
+                  y = change.beats),
+              alpha = 0.1,
+              fill = "black") +
+  geom_jitter(aes(x = treatment,
+                  y = change.beats),
+              height = 0,
+              width = 0.1) +
+  geom_linerange(data = barnacle.new,
+                 aes(x = treatment,
+                     ymin = lower95,
+                     ymax = upper95),
+                 colour = "red") +
+  geom_point(data = barnacle.new,
+             aes(x = treatment,
+                 y = fit),
+             colour = "red",
+             size = 2) +
+  labs(x = "Treatment",
+       y = "Change in Cirral Beats (bpm)") +
+  facet_wrap(~ site) +
+  theme_bw()
+```
+
+Let's go back to the model output now that we feel confident that it's a good fit for our data.
+
+```{r}
+summary(barnacle.mod)
+```
+
+We can see there isn't a difference by treatment, but how can we look at the differences by site? In the current output we can just see how the other sites differ from Aguilar, which was the first level of the factor and so was automatically used as the reference group (or intercept) in the model.
+
+The emmeans package is useful for doing pairwise comparisons of factor levels from a fitted lm. The function we're going to use will essentially predict for our model, varying the levels of the variable we're interested in while averaging over the effects of the other variables.
+
+```{r}
+barnacle.emm.s <- emmeans(barnacle.mod, "site")
+pairs(barnacle.emm.s)
+```
+

@@ -1,0 +1,715 @@
+---
+title: "The Linear Model"
+output:
+  ioslides_presentation:
+    widescreen: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE)
+
+library(ggplot2)
+library(dplyr)
+library(DHARMa)
+library(glmmTMB)
+
+wizard <- 
+  read.csv("wizard_animal_data_2001_2022.csv",
+           header = TRUE,
+           stringsAsFactors = TRUE)
+
+wizard$date <-
+  as.Date(wizard$date)
+
+wizard$year <-
+  format(wizard$date,
+        "%Y")
+
+wizard$year <- as.character(wizard$year)
+wizard$year <- as.numeric(wizard$year)
+
+wizard$year <- wizard$year - 2001
+
+wizard2 <-
+  na.omit(wizard)
+
+names(wizard2)
+
+wizard2$richness <- rowSums((wizard2[, c(11:101)] > 0) * 1)
+
+```
+
+## The linear equation
+
+$$
+y_i = \beta_0 + \beta_1x
+$$
+$\beta_0$ = intercept
+$\beta_1$ = slope
+
+You might recognize this simple equation from as far back as high school. This equation describes a straight line, but is also the backbone of the linear model - the deterministic part.
+
+## The stochastic part
+
+Of course, real data are variable, so we need some way of capturing the way in which our results vary relative to the expectation. We do this in a linear model by adding an error component.
+
+$$
+\begin{gather}
+y_i = \beta_0 + \beta_1x_i + \epsilon_i\\
+\epsilon_i \sim \text{Normal}(0, \sigma)
+\end{gather}
+$$
+
+## Another formulation
+
+Another way of mathematically writing out the linear model is as follows:
+
+$$
+\begin{gather}
+y_i \sim \text{Normal}(\mu, \sigma)\\
+\mu = \beta_0 + \beta_1x
+\end{gather}
+$$
+
+## Regression
+
+Linear regression is the easiest to relate to the linear model format.
+
+It breaks down to: 
+
+$$
+\begin{gather}
+y_i\sim \text{Normal}(\mu, \sigma)\\
+\mu = \beta_0 + \beta_1x\\
+H_0 : \beta_1 = 0
+\end{gather}
+$$
+
+## Example
+
+For example let's consider the Wizard intertidal dataset. For now, I've removed rows with NA values and then calculated species richness for each remaining quadrat.
+
+Let's plot richness at each quadrat against year. To make some things easier, year has been converted to values ranging from 0 to 21, with 0 being 2001 and 21 being 2022
+
+```{r}
+wizardplot <-
+  ggplot(wizard2) +
+  geom_jitter(aes(y = richness,
+                  x = year),
+              width = 0.3,
+              height = 0,
+              alpha = 0.5) +
+  labs(x = "Year",
+       y = "Species Richness")
+```
+
+## View the plot
+
+```{r, out.width='75%', fig.align='center'}
+wizardplot 
+```
+
+## Fit a regression
+
+Let's start off with a linear regression and see how the result relates to our linear equation.
+
+There are many reasons why this is the wrong model for our data. Can you think of some?
+
+```{r, out.width='75%'}
+wizard.regression <- 
+  lm(richness ~ year,
+     data = wizard2)
+```
+
+## View the output {.smaller}
+
+```{r}
+summary(wizard.regression)
+```
+
+## $R^2$
+
+AKA the coefficient of determination.
+
+"The proportion of the variation in the dependent variable that is predictable from the independent variable(s)."
+
+$$
+\begin{gather}
+R^2 = 1 - \frac{SS_{res}}{SS_{tot}}\\ 
+R^2 = 1 - \frac{\sum_i(y_i - \hat{y})^2}{\sum_i(y_i - \bar{y})^2}\\
+\end{gather}
+$$
+$\hat{y}$ = fitted response
+$\bar{y}$ = mean response
+
+---
+
+```{r}
+intercept <- wizard.regression$coefficients["(Intercept)"]
+slope <- wizard.regression$coefficients["year"]
+fitted <- intercept + slope * wizard2$year
+SSres <- sum((wizard2$richness - fitted)^2)
+SStot <- sum((wizard2$richness - mean(wizard2$richness))^2)
+R2 <- 1 - SSres/SStot
+R2
+```
+
+## Adjusted $R^2$
+
+$$
+\begin{gather}
+\bar{R^2} = 1 - \frac{SS_{res}/df_{res}}{SS_{tot}/df_{tot}} \\ 
+df_{res} = n - p \\
+df_{tot} = n-1 \\\\
+\bar{R^2} = 1 - (1 - R^2)\frac{n - 1}{n - p}
+\end{gather}
+$$
+
+```{r}
+n <- length(wizard2)
+p <- 1
+aR2 <- 1 - ((1-R2) * (n - 1) / (n - p))
+aR2
+```
+
+
+## Plot based on the LM equation
+
+```{r, out.width='65%', fig.align='center'}
+wizardplot + 
+  geom_abline(aes(slope = slope, intercept = intercept), colour = "red") +
+  geom_abline(aes(intercept = intercept, slope = 0), colour = "blue")
+```
+
+## Residual standard error {.smaller}
+
+```{r}
+summary(wizard.regression)
+
+rse <- summary(wizard.regression)$sigma
+```
+
+In the lm output, RSE is an estimate of $\sigma$ in our linear model formulation.
+
+## Putting the pieces together
+
+We can simulate new data based the parameter estimates from our LM.
+```{r}
+newwizard <-
+  data.frame(year = wizard2$year)
+
+newwizard$mean <-
+  with(newwizard,
+       intercept + slope * year)
+
+newwizard$richness <-
+  with(newwizard,
+       rnorm(n = nrow(newwizard),
+             mean = mean,
+             sd = rse))
+```
+
+## Plot our new data
+
+```{r, out.width='50%', fig.align='center'}
+newwizardplot <- 
+  ggplot(newwizard) +
+  geom_jitter(aes(y = richness, x = year), width = 0.3, height = 0, 
+              alpha = 0.5) +
+  labs(x = "Year", y = "Richness")
+newwizardplot 
+```
+
+
+## Thinking about assumptions
+
+Plotting our original data against our simulated data, it's clear we need to think deeper about our model assumptions!
+
+```{r, out.width='50%', fig.align='center'}
+newwizardplot + 
+  geom_jitter(data = wizard2, aes(y = richness, x = year), width = 0.3, 
+              height = 0, alpha = 0.5, colour = "blue")
+```
+
+## LM assumptions
+
+The main assumptions of an LM are 
+
+1. Independence
+2. Response variable is distributed over predictors in a way similar to the assumed distribution.
+
+For a normal distribution this would look like:
+
+2. Normally distributed residuals
+3. Equal variance in residuals
+
+Which of these assumptions are our data not matching?
+
+## Model validation
+
+A common approach to checking model fit is using a residuals vs. fitted plot.
+
+```{r, out.width='50%', fig.align='center'}
+ggplot() +
+  geom_jitter(aes(x = fitted(wizard.regression), 
+                  y = residuals(wizard.regression)), width = 0.1, height = 0,
+              alpha = 0.5) + geom_hline(aes(yintercept = 0))
+```
+
+
+## One-sample t-test
+
+We can think of this as a special case of the LM equation from before, with just the intercept part.
+
+$$
+\begin{gather}
+y_i \sim \text{Normal}(\mu, \sigma)\\
+\mu = \beta_0\\
+H_0 : \beta_0 = 0
+\end{gather}
+$$
+
+## Example
+Consider the Wizard richness data from just 2022. What would a one-sample t-test do here? How about two-sided vs. one-sided?
+
+```{r, out.width='50%', fig.align='center'}
+wizard2022 <- wizard2 %>% filter(year == 21)
+richness2022plot <- ggplot(wizard2022) + 
+  geom_histogram(aes(x = richness), binwidth = 1) + labs(x = "Richness", y = "Count")
+richness2022plot
+```
+
+## Run a one-sample t-test
+
+Let's say we have past data suggesting that overall average species richness at our sites was 2 and we want to test wether richness was greater in 2022.
+
+```{r}
+richness2022.t.test <- t.test(wizard2022$richness, mu = 2, 
+                              alternative = "greater")
+richness2022.t.test
+```
+
+## Extract parameter estimates
+
+```{r}
+meanrichness2022 <- richness2022.t.test$estimate
+meanrichness2022
+
+serichness2022 <- richness2022.t.test$stderr
+serichness2022
+```
+
+So we estimate $\beta_0$ at 2.46 and $\sigma$ at 0.15.
+
+## Plot {.smaller}
+```{r, out.width='50%', fig.align='center'}
+richness2022plot +
+  geom_vline(aes(xintercept = meanrichness2022), colour = "red") +
+  geom_vline(aes(xintercept = meanrichness2022 + 1.96 * serichness2022),
+             colour = "red",
+             linetype = "dashed") +
+  geom_vline(aes(xintercept = meanrichness2022 - 1.96 * serichness2022),
+             colour = "red",
+             linetype = "dashed") +
+  geom_vline(aes(xintercept = 2),
+             colour = "blue",
+             linetype = "dashed")
+```
+
+## Two-sample t-test
+
+We can extend the one-sample t-test to a two-sample test by adding $\beta_1$ and $x$ back into our linear equation.
+
+$$
+\begin{gather}
+y_i\sim \text{Normal}(\mu, \sigma)\\
+\mu = \beta_0 + \beta_1x\\
+H_0 : \beta_1 = 0
+\end{gather}
+$$
+
+This is the same as our regression equation!
+
+Except now $x$ works as a binary variable that gets turned off whether the data comes from group 1 (0) or group 2 (1). $\beta_0$ is the mean of group 1 and $\beta_1$ is the difference between groups 1 and 2.
+
+For example, if $\beta_0 = 5$ and $\beta_1 = -4$, what are the means of groups 1 and 2?
+
+## Run a two-sample t-test
+
+We can compare species richness between our exposed and sheltered sites in 2022.
+
+```{r}
+richness2022.2sample.t.test <- t.test(richness ~ exposure, data = wizard2022)
+richness2022.2sample.t.test
+```
+
+## Compare with lm {.smaller}
+
+```{r}
+richness2022.2sample.t.test.lm <- lm(richness ~ exposure, data = wizard2022)
+summary(richness2022.2sample.t.test.lm)
+```
+
+## Extract the parameter estimates
+
+```{r}
+meanrichness2022.e <- richness2022.2sample.t.test$estimate[1]
+meanrichness2022.s <- richness2022.2sample.t.test$estimate[2]
+meanrichness2022.e
+meanrichness2022.s
+serichness2022.es <- richness2022.2sample.t.test$stderr
+serichness2022
+```
+
+## Plot everything {.smaller}
+```{r, out.width='60%', fig.align='center'}
+ggplot(wizard2022) +
+  geom_histogram(aes(x = richness, fill = exposure), binwidth = 1) +
+  labs(x = "Richness", y = "Count") +
+  geom_vline(aes(xintercept = meanrichness2022.e), colour = "red", 
+             linetype = "dashed") +
+  geom_vline(aes(xintercept = meanrichness2022.s), colour = "blue",
+             linetype = "dashed")
+```
+
+## One-way ANOVA
+
+What if we want to compare across a categorical variable with more than two groups?
+
+We can do this with a one-way ANOVA.
+
+$$
+\begin{gather}
+y_i\sim \text{Normal}(\mu, \sigma)\\
+\mu = \beta_0 + \beta_1x_1 + \beta_2x_2\ +\ ...\\\\
+H_0 : \beta_1 = 0,\ \beta_2 = 0
+\end{gather}
+$$
+Where $x_j$ is an indicator (0 or 1) which turns on or off $\beta_j$.
+
+## Example
+
+Consider the Wizard data again, but this time we'll compare data from 2009, 2017, and 2022, using year as a categorical variable.
+
+```{r}
+wizard07to22 <- wizard2 %>% filter(year >= 8)
+wizard07to22$year <- as.factor(wizard07to22$year)
+wizard07to22.ANOVA <- aov(richness ~ year, data = wizard07to22)
+summary(wizard07to22.ANOVA)
+```
+
+---
+
+```{r}
+beta.0 <- wizard07to22.ANOVA$coefficients[1]
+beta.1 <- wizard07to22.ANOVA$coefficients[2]
+beta.2 <- wizard07to22.ANOVA$coefficients[3]
+```
+
+
+## Compare with lm {.smaller}
+```{r}
+wizard07to22.ANOVA2 <- lm(richness ~ year, data = wizard07to22)
+summary(wizard07to22.ANOVA2)
+```
+
+## Plot {.smaller}
+```{r, out.width='50%', fig.align='center'}
+ggplot(wizard07to22) +
+  geom_histogram(aes(x = richness, fill = year), binwidth = 1) +
+  labs(x = "Richness", y = "Count") +
+  geom_vline(aes(xintercept = beta.0), colour = "red", 
+             linetype = "dashed") +
+  geom_vline(aes(xintercept = beta.0 + beta.1), colour = "green",
+             linetype = "dashed") +
+  geom_vline(aes(xintercept = beta.0 + beta.2), colour = "blue", 
+             linetype = "dashed")
+```
+
+## Two-way ANOVA
+
+The linear equation for the two-way ANOVA is a like having an interaction in an ANCOVA, but now the interaction is between two categorical variables.
+
+$$
+\mu = \beta_0 + \beta_1X_1 + \beta_2X_1 + \beta_3X_1X_2
+$$
+
+$\beta_j$ are vectors $\beta$ which are turned on or off by indicator vector $X_j$.
+
+## Example
+
+Say we want to compare across exposed/unexposed sites as well as across the all the study years as a categorical variable.
+
+If the exposed site in 2001 is our reference group, some year and group combination means would look like:
+
+$$
+\begin{gather}
+\mu_{exposed2001} = \beta_0\\
+\mu_{sheltered2001} = \beta_0 + \beta_{sheltered}\\
+\mu_{exposed2022} = \beta_0 + \beta_{2022} + \beta_{exposed2022}\\
+\mu_{sheltered2002} = \beta_0 + \beta_{2022} + \beta_{sheltered} + \beta_{sheltered2022}
+\end{gather}
+$$
+
+## Fit the model
+
+We'll exclude 2002, 2003, and 2017 because there aren't sheltered site data.
+
+```{r}
+wizard3 <- wizard2 %>% filter(year != 1 & year != 2 & year != 16)
+wizard3$year <- as.factor(wizard3$year)
+wizard.ANOVA <- lm(richness ~ year * exposure, data = wizard3)
+```
+
+## View output {.smaller}
+
+```{r, out.width='50%', fig.align='center'}
+summary(wizard.ANOVA)
+```
+
+## Interpret
+
+There are eight different beta values here, so it's a bit painful to extract them all and plot them separately. As a shortcut, we can make a dummy dataset and extract fitted values from the model.
+
+```{r}
+dummydata <- expand.grid(year = factor(levels(wizard3$year)),
+                         exposure = levels(wizard3$exposure))
+
+dummypredict <- predict(wizard.ANOVA, newdata = dummydata, se.fit = TRUE)
+
+dummydata$fitted <- dummypredict$fit
+dummydata$lower95 <- with(dummypredict, fit - 1.96 * se.fit)
+dummydata$upper95 <- with(dummypredict, fit + 1.96 * se.fit)
+```
+
+## Plot {.smaller}
+```{r, out.width='55%', fig.align='center'}
+ggplot(wizard3, out.width='50%', fig.align='center') +
+  geom_jitter(aes(x = year, y = richness, colour= exposure), alpha = 0.3,
+              position = position_jitterdodge(jitter.width = 0.1, jitter.height = 0, dodge.width = 0.75)) +
+  labs(x = "Year", y = "Richness") +
+  geom_linerange(data = dummydata, aes(x = year, ymin = lower95, ymax = upper95, colour = exposure), 
+                 position = position_dodge(width = 0.75), linewidth = 1) +
+  geom_point(data = dummydata, aes(x = year, y = fitted, fill = exposure),
+             position = position_dodge(width = 0.75), shape = 21, size = 3) +
+  scale_fill_viridis_d(name = "") + scale_colour_viridis_d((name = ""))
+```
+
+## Multiple regression (ANCOVA)
+
+What if we want to look at the effect on a response variable of a continuous variable and two different groups. Turns out we can just extend the two sample t-test equations by adding a term for the continuous variable. 
+
+For example if we want to look at the Wizard data and the effect of exposure across all years.
+
+$$
+\begin{gather}
+y_i\sim \text{Normal}(\mu, \sigma)\\
+\mu = \beta_0 + \beta_1x + (\beta_2 \times year)\\\\
+H_0 : \beta_1 = 0,\ \beta_2 = 0
+\end{gather}
+$$
+
+## Break it down by group
+
+So if group is turning $\beta_1$ on or off, this means that
+
+$$
+\begin{gather}
+\mu_1 = \beta_0 + (\beta_2\times year)\\
+\mu_2 = \beta_0 + \beta_1x + (\beta_2\times year)
+\end{gather}
+$$
+
+## Run the model {.smaller}
+
+```{r}
+wizard.ANCOVA <-  # we can use lm
+  lm(richness ~ exposure + year,
+     data = wizard2)
+summary(wizard.ANCOVA)  # Which values match which parameters?
+```
+
+## Extract parameter values and plot everything
+ 
+```{r}
+beta.0 <- wizard.ANCOVA$coefficients[1]
+beta.1 <- wizard.ANCOVA$coefficients[2]
+beta.2 <- wizard.ANCOVA$coefficients[3]
+ANCOVAplot <- 
+  ggplot(wizard2) +
+  geom_jitter(aes(x = year, y = richness, colour = exposure), 
+              width = 0.3, height = 0, alpha = 0.5) +
+  labs(x = "Year", y = "Species Richness") +
+  geom_hline(aes(yintercept = beta.0), colour = "red", 
+             linetype = "dashed") +
+  geom_hline(aes(yintercept = beta.0 + beta.1), colour = "blue", 
+             linetype = "dashed") +
+  geom_abline(aes(intercept = beta.0, slope = beta.2), colour = "red") +
+  geom_abline(aes(intercept = beta.0 + beta.1, slope = beta.2), 
+              colour = "blue") +
+  scale_colour_discrete(name = "")
+```
+ 
+## View the plot
+
+```{r, out.width='80%', fig.align='center'}
+ANCOVAplot
+```
+
+## Interactions
+
+But what if we think the effect of year might be different at the exposed vs. sheltered sites? For this we'll need to add an interaction term to the linear equation.
+
+$$
+\mu = \beta_0 + \beta_1x + (\beta_2 \times year) + (\beta_3x \times year)
+$$
+
+You can think of $\beta_3$ like a special slope modifier that gets turned on only for the second group.
+
+## Fit the model {.smaller}
+
+```{r}
+wizard.ANCOVA <-
+  lm(richness ~ exposure * year,  # as easy as that!
+     data = wizard2)
+summary(wizard.ANCOVA)  # Which values match which parameters?
+beta.0 <- wizard.ANCOVA$coefficients[1]
+beta.1 <- wizard.ANCOVA$coefficients[2]
+beta.2 <- wizard.ANCOVA$coefficients[3]
+beta.3 <- wizard.ANCOVA$coefficients[4]
+```
+
+## And plot
+
+```{r}
+ANCOVAplot <- 
+  ggplot(wizard2) +
+  geom_jitter(aes(x = year, y = richness, colour = exposure),
+              width = 0.3, height = 0, alpha = 0.5) +
+  labs(x = "Year", y = "Species Richness") +
+  geom_hline(aes(yintercept = beta.0), colour = "red", 
+             linetype = "dashed") +
+  geom_hline(aes(yintercept = beta.0 + beta.1), colour = "blue", 
+             linetype = "dashed") +
+  geom_abline(aes(intercept = beta.0, slope = beta.2), colour = "red") +
+  geom_abline(aes(intercept = beta.0 + beta.1, slope = beta.2 
+                  + beta.3), # this is the only difference!
+              colour = "blue") +
+  scale_colour_discrete(name = "")
+```
+
+## View the plot
+
+```{r, out.width='80%', fig.align='center'}
+ANCOVAplot
+```
+
+Why doesn't this look that different?
+
+## Diagnose the model
+
+```{r, out.width='65%', fig.align='center'}
+ggplot() +
+  geom_jitter(aes(x = fitted(wizard.ANCOVA), y = residuals(wizard.ANCOVA)),
+              width = 0.1, height = 0, alpha = 0.5) +
+  geom_hline(aes(yintercept = 0))
+```
+
+## What do the model predictions look like?
+
+```{r, out.width='50%', fig.align='center'}
+dummydata <- expand.grid(exposure = c("exposed", "sheltered"),
+                         year = c(0:21))
+
+dummypredict <- predict(wizard.ANCOVA, newdata = dummydata, se.fit = TRUE)
+
+dummydata$fitted <- dummypredict$fit
+dummydata$lower95 <- with(dummypredict, fit - 1.96 * se.fit)
+dummydata$upper95 <- with(dummypredict, fit + 1.96 * se.fit)
+```
+ 
+---
+
+```{r}
+ANCOVAplot <- 
+  ggplot(wizard2) +
+  geom_ribbon(data = dummydata, aes(x = year, ymin = lower95, ymax = upper95,
+                                    fill = exposure), alpha = 0.3) +
+  geom_jitter(aes(x = year, y = richness, colour = exposure), 
+              width = 0.3, height = 0, alpha = 0.5) +
+  labs(x = "Year", y = "Species Richness") +
+  geom_line(data = dummydata, aes(x = year, y = fitted, 
+                                  colour = exposure)) +
+  scale_colour_viridis_d(name = "") +
+  scale_fill_viridis_d(name = "") +
+  theme_classic()
+```
+
+## View the plot
+
+```{r, fig.align='center'}
+ANCOVAplot
+```
+
+## Transformation
+
+We could try solving our residuals issue by doing a log($x$ + 1) transformation on the response variable.
+
+```{r}
+wizard.ANCOVA <-
+  lm(log(richness + 1) ~ exposure * year,
+     data = wizard2)
+```
+
+## Plot residuals again
+
+```{r, out.width='60%', fig.align='center'}
+residuals <- resid(wizard.ANCOVA)
+fitted <- fitted(wizard.ANCOVA)
+ggplot() +
+  geom_jitter(aes(x = fitted, y = residuals), width = 0.1, height = 0) +
+  geom_hline(aes(yintercept = 0), linetype = "dashed")
+  
+```
+
+That looks way better!
+
+## What does that do to our model results? {.smaller}
+```{r}
+summary(wizard.ANCOVA)
+```
+
+## What do our model predictions look like now?
+
+```{r, out.width='50%', fig.align='center'}
+dummydata <- expand.grid(exposure = c("exposed", "sheltered"),
+                         year = c(0:21))
+
+dummypredict <- predict(wizard.ANCOVA, newdata = dummydata, se.fit = TRUE)
+
+dummydata$fitted <- exp(dummypredict$fit) - 1
+dummydata$lower95 <- exp(with(dummypredict, fit - 1.96 * se.fit)) - 1
+dummydata$upper95 <- exp(with(dummypredict, fit + 1.96 * se.fit)) - 1
+```
+
+---
+```{r}
+ANCOVAplot <- 
+  ggplot(wizard2) +
+  geom_ribbon(data = dummydata, aes(x = year, ymin = lower95, ymax = upper95,
+                                    fill = exposure), alpha = 0.3) +
+  geom_jitter(aes(x = year, y = richness, colour = exposure), 
+              width = 0.3, height = 0, alpha = 0.5) +
+  labs(x = "Year", y = "Species Richness") +
+  geom_line(data = dummydata, aes(x = year, y = fitted, 
+                                  colour = exposure)) +
+  scale_colour_viridis_d(name = "") +
+  scale_fill_viridis_d(name = "") +
+  theme_classic()
+```
+
+## View the plot
+
+```{r, fig.align='center'}
+ANCOVAplot
+```
