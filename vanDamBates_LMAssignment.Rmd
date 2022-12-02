@@ -1,0 +1,84 @@
+---
+title: "Linear Models Lab"
+author: "John Jacob Jinglehymer Smith"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+## Don't change this. It is code to generate your data for the linear model.
+generateData <- function(seed = NULL)
+{	
+	if(is.null(seed)) seed <- floor(runif(1,1,10000))
+	print(paste("Random Seed:", seed))
+	set.seed(seed)
+	dataType <- rbinom(1, size = 1, prob = 0.5)
+	dat <- data.frame(temperature = runif(100, 10, 13), 
+		pH = runif(100, 7.5, 7.8), 
+		DissolvedOxygen = runif(100, 7, 8),
+		concentrationOfAlgae = runif(100, 0, 20),
+		initialSizeClass = sample(c("Small", "Large"), 100, replace = TRUE)
+		)
+	betas <- c(runif(1, 4, 5), rnorm(4, 0, 2), runif(1, 0, 4))
+	sigma <- runif(1, 0.75, 15)
+	include <- rbinom(5, size = 1, prob = 0.8)
+	if(dataType == 1) 
+	{	
+		dat$growth <- betas[1] + 
+			dat$temperature*betas[2]*include[1] + 
+			dat$pH*betas[3]*include[2] + 
+			dat$DissolvedOxygen*betas[4]*include[3] + 
+			dat$concentrationOfAlgae*betas[5]*include[4] + 
+		  (dat$initialSizeClass == "Large")*betas[6]*include[5] +
+			rnorm(100, 0, sigma)
+	}else{
+		betas <- betas/10
+		sigma <- sigma/10
+		tmp <- betas[1] +
+			dat$temperature*betas[2]*include[1] + 
+			dat$pH*betas[3]*include[2] + 
+			dat$DissolvedOxygen*betas[4]*include[3] + 
+			dat$concentrationOfAlgae*betas[5]*include[4] +
+		  (dat$initialSizeClass == "Large")*betas[6]*include[5] +
+			rnorm(100, 0, sqrt(sigma))
+		dat$growth <- exp(tmp)
+	}
+	return(dat)
+}
+```
+
+```{r, echo = FALSE}
+print("I understand what I'm doing and have edited this out because Paul obviously didn't intend for me to include this in my assignment. I've also removed the marks comments from all the section headings because that too isn't part of MY report.")
+```
+
+## Introduction 
+
+To measure the impact of the concentration of algae on the growth rate of oysters we ran an experiment in which we randomly changed the algae concentration between 0 and 20 units. We then measured the amount of growth after 3 months holding the temperature, dissolved oxygen, and pH constant for during the trial. Random fluctuations occurred for each trial due to poor lab skills and extreme events out of our control. These events may have had a significant impact on our observed growth. Additionally, we randomly chose each oyster from a small and large size class.
+
+## Build Data Problem (2 marks)
+
+Build your example data set and do data exploration through visualization. Describe your data type and interpret the plots you make. Describe what =you saw for the different variable values etc.
+
+```{r}
+  my.data <- generateData()
+  # Run this once and save the seed to tell us in the report.
+  write.csv(my.data, "LMAssignmentData.csv")
+```
+
+## Methods (2 marks)
+
+Describe the methods you will use to analyze this data and their assumptions and how you will check them.
+
+## Results (3 marks)
+
+```{r}
+growth.data <- read.csv("LMAssignmentData.csv")
+```
+
+Run a linear model as discussed in class. Validate it and put the details of the validation in the appendix. Try a different model if you think it doesn't. Interpret, summarize and plot the results.
+
+## Appendix: Residual Analysis (3 marks)
+
+Residual analysis. Did your data meet the model assumptions?
