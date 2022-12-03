@@ -24,7 +24,7 @@ For this linear model lab, we'll again look to the Davies et al. paper on microp
 Start by loading in the data and look at its structure.
 
 ```{r}
-barnacle <- read.csv("barnacledata.csv", stringsAsFactors=TRUE)
+barnacle <- read.csv("data/barnacledata.csv", stringsAsFactors=TRUE)
 
 names(barnacle)
 

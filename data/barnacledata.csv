@@ -1,0 +1,81 @@
+site,treatment,rock,individual,group,aperture,base,height,closest.distance,initial.flume.temp,final.flume.temp,initial.flume.flow,final.flume.flow,initial.tank.temp.plastic,final.tank.temp.plastic,initial.tank.temp.clean,final.tank.temp.clean,tank.flow,initial.beats.min,final.beats.min,change.beats,comments.initial,comments.final,fiber.count.1,fiber.count.2,fiber.count.all,before.after,fiberpresence
+Foreshore,Plastic,Foreshore plastic,1,5,4.1,7,3.2,8.2,15.4,15.4,0.29,0.233,12.5,12.8,11.7,11.8,0.268,17,11,-6,long pause without feeding,,NA,0,0,After,0
+Foreshore,Plastic,Foreshore plastic,2,5,4.5,6.1,3.6,8.2,15.4,15.4,0.29,0.233,12.5,12.8,11.7,11.8,0.268,4,14,10,only feeding at beginning,,1,NA,1,Before,1
+Foreshore,Plastic,Foreshore plastic,3,5,4.2,7.2,3.3,8.2,15.4,15.4,0.29,0.233,12.5,12.8,11.7,11.8,0.268,0,0,0,,,NA,0,0,After,0
+Foreshore,Plastic,Foreshore plastic,4,5,3.6,7.2,3.4,8.2,15.4,15.4,0.29,0.233,12.5,12.8,11.7,11.8,0.268,31,34,3,,,0,NA,0,Before,0
+Foreshore,Plastic,Foreshore plastic,5,5,4,6.6,2,8.2,15.4,15.4,0.29,0.233,12.5,12.8,11.7,11.8,0.268,45,0,-45,,,NA,0,0,After,0
+Foreshore,Plastic,Foreshore plastic,6,5,3.6,6.6,2.1,8.2,15.4,15.4,0.29,0.233,12.5,12.8,11.7,11.8,0.268,31,35,4,,,NA,0,0,After,0
+Foreshore,Plastic,Foreshore plastic,7,5,4.1,6,3.1,8.2,15.4,15.4,0.29,0.233,12.5,12.8,11.7,11.8,0.268,16,10,-6,started feeding at end,started feeding at end,0,NA,0,Before,0
+Foreshore,Plastic,Foreshore plastic,8,5,4,6.4,2.3,8.2,15.4,15.4,0.29,0.233,12.5,12.8,11.7,11.8,0.268,34,0,-34,,,2,NA,2,Before,1
+Foreshore,Plastic,Foreshore plastic,9,5,4.9,8.1,4,8.2,15.4,15.4,0.29,0.233,12.5,12.8,11.7,11.8,0.268,28,30,2,,,NA,0,0,After,0
+Foreshore,Plastic,Foreshore plastic,10,5,4.5,7.5,3,8.2,15.4,15.4,0.29,0.233,12.5,12.8,11.7,11.8,0.268,20,0,-20,,,1,NA,1,Before,1
+Foreshore,Control,Foreshore control,1,3,4.9,8.5,6.1,11.4,14.8,14.9,0.276,0.269,12.2,12.2,11.9,12.3,0.268,8,28,20,stopped feeding halfway,,2,NA,2,Before,1
+Foreshore,Control,Foreshore control,2,3,3.6,6.3,3,11.4,14.8,14.9,0.276,0.269,12.2,12.2,11.9,12.3,0.268,13,0,-13,stopped feeding,,NA,1,1,After,1
+Foreshore,Control,Foreshore control,3,3,4.2,7.6,3.3,11.4,14.8,14.9,0.276,0.269,12.2,12.2,11.9,12.3,0.268,16,31,15,stopped feeding halfway ,,0,NA,0,Before,0
+Foreshore,Control,Foreshore control,4,3,4.8,8.8,5.2,11.4,14.8,14.9,0.276,0.269,12.2,12.2,11.9,12.3,0.268,0,0,0,,,NA,0,0,After,0
+Foreshore,Control,Foreshore control,5,3,4.5,9.2,7,11.4,14.8,14.9,0.276,0.269,12.2,12.2,11.9,12.3,0.268,0,0,0,,,0,NA,0,Before,0
+Foreshore,Control,Foreshore control,6,3,3.7,7.1,2.1,11.4,14.8,14.9,0.276,0.269,12.2,12.2,11.9,12.3,0.268,0,0,0,,,NA,0,0,After,0
+Foreshore,Control,Foreshore control,7,3,4.1,8,5.2,11.4,14.8,14.9,0.276,0.269,12.2,12.2,11.9,12.3,0.268,18,0,-18,,,0,NA,0,Before,0
+Foreshore,Control,Foreshore control,8,3,4.7,7,4.1,11.4,14.8,14.9,0.276,0.269,12.2,12.2,11.9,12.3,0.268,48,34,-14,,,NA,0,0,After,0
+Foreshore,Control,Foreshore control,9,3,4.2,7.3,5.2,11.4,14.8,14.9,0.276,0.269,12.2,12.2,11.9,12.3,0.268,32,0,-32,,,NA,0,0,After,0
+Foreshore,Control,Foreshore control,10,3,4.4,8,2.9,11.4,14.8,14.9,0.276,0.269,12.2,12.2,11.9,12.3,0.268,38,8,-30,,stopped feeding after 20 seconds,0,NA,0,Before,0
+Strawberry,Plastic,Strawberry plastic,1,2,5,11,4.3,10.4,13.9,13.9,0.297,0.242,12.1,12,11.9,11.9,0.268,0,0,0,,,NA,0,0,After,0
+Strawberry,Plastic,Strawberry plastic,2,2,3,6.3,2.9,10.4,13.9,13.9,0.297,0.242,12.1,12,11.9,11.9,0.268,32,0,-32,,,NA,0,0,After,0
+Strawberry,Plastic,Strawberry plastic,3,2,3.1,5,2.3,10.4,13.9,13.9,0.297,0.242,12.1,12,11.9,11.9,0.268,26,4,-22,stopped feeding before end,started feeding at end,0,NA,0,Before,0
+Strawberry,Plastic,Strawberry plastic,4,2,4.2,8,3.4,10.4,13.9,13.9,0.297,0.242,12.1,12,11.9,11.9,0.268,0,0,0,,started feeding halfway through,NA,0,0,After,0
+Strawberry,Plastic,Strawberry plastic,5,2,3,6.1,2,10.4,13.9,13.9,0.297,0.242,12.1,12,11.9,11.9,0.268,7,21,14,started feeding at end,,0,NA,0,Before,0
+Strawberry,Plastic,Strawberry plastic,6,2,4.1,6.3,2.3,10.4,13.9,13.9,0.297,0.242,12.1,12,11.9,11.9,0.268,28,42,14,paused feeding in middle,,0,NA,0,Before,0
+Strawberry,Plastic,Strawberry plastic,7,2,3.6,6.3,2.6,10.4,13.9,13.9,0.297,0.242,12.1,12,11.9,11.9,0.268,0,12,12,,many pauses,0,NA,0,Before,0
+Strawberry,Plastic,Strawberry plastic,8,2,4,6.1,3.8,10.4,13.9,13.9,0.297,0.242,12.1,12,11.9,11.9,0.268,0,5,5,,stopped feeding after a few seconds,,0,0,After,0
+Strawberry,Plastic,Strawberry plastic,9,2,3.8,7.1,2.6,10.4,13.9,13.9,0.297,0.242,12.1,12,11.9,11.9,0.268,0,0,0,,,NA,0,0,After,0
+Strawberry,Plastic,Strawberry plastic,10,2,4,7.4,3.8,10.4,13.9,13.9,0.297,0.242,12.1,12,11.9,11.9,0.268,0,0,0,,,1,NA,1,Before,1
+Strawberry,Control,Strawberry control,1,5,4.4,7.1,3,10.6,15.4,15.4,0.29,0.233,12.5,12.8,11.4,11.9,0.268,0,0,0,,,0,NA,0,Before,0
+Strawberry,Control,Strawberry control,2,5,3,5.3,2,10.6,15.4,15.4,0.29,0.233,12.5,12.8,11.4,11.9,0.268,30,13,-17,,fed for maybe 1/2 the video,0,NA,0,Before,0
+Strawberry,Control,Strawberry control,3,5,3.3,5.3,2.1,10.6,15.4,15.4,0.29,0.233,12.5,12.8,11.4,11.9,0.268,16,16,0,,,NA,0,0,After,0
+Strawberry,Control,Strawberry control,4,5,4,6.7,2.9,10.6,15.4,15.4,0.29,0.233,12.5,12.8,11.4,11.9,0.268,7,37,30,started feeding in the last 20 seconds ,,0,NA,0,Before,0
+Strawberry,Control,Strawberry control,5,5,3.1,6.8,3.5,10.6,15.4,15.4,0.29,0.233,12.5,12.8,11.4,11.9,0.268,0,2,2,,held cirri out (hard to see),NA,0,0,After,0
+Strawberry,Control,Strawberry control,6,5,3.2,7,1.5,10.6,15.4,15.4,0.29,0.233,12.5,12.8,11.4,11.9,0.268,9,0,-9,"started feeding at end, barely, hard to tell",,NA,0,0,After,0
+Strawberry,Control,Strawberry control,7,5,3,6.1,3.6,10.6,15.4,15.4,0.29,0.233,12.5,12.8,11.4,11.9,0.268,35,29,-6,,stops feeding on last 20 seconds,0,NA,0,Before,0
+Strawberry,Control,Strawberry control,8,5,3,6.2,2,10.6,15.4,15.4,0.29,0.233,12.5,12.8,11.4,11.9,0.268,35,6,-29,,starts feeding in last 15 seconds,0,NA,0,Before,0
+Strawberry,Control,Strawberry control,9,5,3.6,5.8,2.3,10.6,15.4,15.4,0.29,0.233,12.5,12.8,11.4,11.9,0.268,18,0,-18,started feeding halfway through,,NA,0,0,After,0
+Strawberry,Control,Strawberry control,10,5,4.3,6.2,2.3,10.6,15.4,15.4,0.29,0.233,12.5,12.8,11.4,11.9,0.268,46,0,-46,,,NA,0,0,After,0
+Aguilar,Control,Aguilar control,1,2,3.1,4.3,1,8,13.9,13.9,0.297,0.242,11.6,11.3,12.9,11.2,0.268,34,0,-34,,,0,NA,0,Before,0
+Aguilar,Control,Aguilar control,2,2,4.4,7,1.6,8,13.9,13.9,0.297,0.242,11.6,11.3,12.9,11.2,0.268,6,24,18,long pauses without feeding,,NA,0,0,After,0
+Aguilar,Control,Aguilar control,3,2,4.1,6.2,2.3,8,13.9,13.9,0.297,0.242,11.6,11.3,12.9,11.2,0.268,5,44,39,long pauses without feeding,,NA,0,0,After,0
+Aguilar,Control,Aguilar control,4,2,5,9.3,2.2,8,13.9,13.9,0.297,0.242,11.6,11.3,12.9,11.2,0.268,0,0,0,,,1,NA,1,Before,1
+Aguilar,Control,Aguilar control,5,2,3.4,6.1,2,8,13.9,13.9,0.297,0.242,11.6,11.3,12.9,11.2,0.268,23,48,25,,,2,NA,2,Before,1
+Aguilar,Control,Aguilar control,6,2,3.3,6,2.2,8,13.9,13.9,0.297,0.242,11.6,11.3,12.9,11.2,0.268,0,34,34,,,NA,0,0,After,0
+Aguilar,Control,Aguilar control,7,2,3.1,5.1,1.4,8,13.9,13.9,0.297,0.242,11.6,11.3,12.9,11.2,0.268,22,23,1,,hard to see,NA,0,0,After,0
+Aguilar,Control,Aguilar control,8,2,3.1,6.4,1.1,8,13.9,13.9,0.297,0.242,11.6,11.3,12.9,11.2,0.268,0,0,0,,,0,NA,0,Before,0
+Aguilar,Control,Aguilar control,9,2,3.1,6.3,2,8,13.9,13.9,0.297,0.242,11.6,11.3,12.9,11.2,0.268,0,31,31,,,0,NA,0,Before,0
+Aguilar,Control,Aguilar control,10,2,3,5.2,1,8,13.9,13.9,0.297,0.242,11.6,11.3,12.9,11.2,0.268,27,0,-27,,,NA,0,0,After,0
+Aguilar,Plastic,Aguilar plastic,1,3,3.6,7,2.3,8.2,14.8,14.9,0.276,0.269,12.3,12.2,11.9,12.1,0.268,0,40,40,,,NA,9,9,After,1
+Aguilar,Plastic,Aguilar plastic,2,3,3,4.2,1.2,8.2,14.8,14.9,0.276,0.269,12.3,12.2,11.9,12.1,0.268,21,22,1,,,3,NA,3,Before,1
+Aguilar,Plastic,Aguilar plastic,3,3,4.3,7.1,2.3,8.2,14.8,14.9,0.276,0.269,12.3,12.2,11.9,12.1,0.268,6,14,8,fed at end,,0,NA,0,Before,0
+Aguilar,Plastic,Aguilar plastic,4,3,4,7.5,2.3,8.2,14.8,14.9,0.276,0.269,12.3,12.2,11.9,12.1,0.268,0,36,36,,,0,NA,0,Before,0
+Aguilar,Plastic,Aguilar plastic,5,3,3.3,6,4.6,8.2,14.8,14.9,0.276,0.269,12.3,12.2,11.9,12.1,0.268,41,49,8,,,NA,1,1,After,1
+Aguilar,Plastic,Aguilar plastic,6,3,4,7.3,2.4,8.2,14.8,14.9,0.276,0.269,12.3,12.2,11.9,12.1,0.268,2,9,7,fed at end,stopped feeding in last 20 seconds,1,NA,1,Before,1
+Aguilar,Plastic,Aguilar plastic,7,3,4.3,6.1,1.6,8.2,14.8,14.9,0.276,0.269,12.3,12.2,11.9,12.1,0.268,36,0,-36,,,NA,1,1,After,1
+Aguilar,Plastic,Aguilar plastic,8,3,4,8,2,8.2,14.8,14.9,0.276,0.269,12.3,12.2,11.9,12.1,0.268,34,40,6,,,NA,5,5,After,1
+Aguilar,Plastic,Aguilar plastic,9,3,4,6.7,1.4,8.2,14.8,14.9,0.276,0.269,12.3,12.2,11.9,12.1,0.268,0,37,37,,,0,NA,0,Before,0
+Aguilar,Plastic,Aguilar plastic,10,3,4,6.6,2,8.2,14.8,14.9,0.276,0.269,12.3,12.2,11.9,12.1,0.268,7,0,-7,fed at end,,NA,7,7,After,1
+Eagle,Plastic,Scotts plastic,1,1,5,8.8,4.1,11.7,12.5,12.5,0.259,0.253,12,11.3,12.9,10.9,0.268,29,44,15,,,8,NA,8,Before,1
+Eagle,Plastic,Scotts plastic,2,1,5,7.7,4.3,11.7,12.5,12.5,0.259,0.253,12,11.3,12.9,10.9,0.268,52,0,-52,,,2,NA,2,Before,1
+Eagle,Plastic,Scotts plastic,3,1,4.2,9.1,3.2,11.7,12.5,12.5,0.259,0.253,12,11.3,12.9,10.9,0.268,30,27,-3,,,NA,0,0,After,0
+Eagle,Plastic,Scotts plastic,4,1,4.4,7.9,4.2,11.7,12.5,12.5,0.259,0.253,12,11.3,12.9,10.9,0.268,23,34,11,,,NA,0,0,After,0
+Eagle,Plastic,Scotts plastic,5,1,5,10,4.1,11.7,12.5,12.5,0.259,0.253,12,11.3,12.9,10.9,0.268,48,34,-14,,,0,NA,0,Before,0
+Eagle,Plastic,Scotts plastic,6,1,4.6,6.6,5.5,11.7,12.5,12.5,0.259,0.253,12,11.3,12.9,10.9,0.268,14,42,28,not feeding for full time,,NA,0,0,After,0
+Eagle,Plastic,Scotts plastic,7,1,4.6,6.5,3.6,11.7,12.5,12.5,0.259,0.253,12,11.3,12.9,10.9,0.268,32,39,7,,,2,NA,2,Before,1
+Eagle,Plastic,Scotts plastic,8,1,5,7.4,3,11.7,12.5,12.5,0.259,0.253,12,11.3,12.9,10.9,0.268,17,9,-8,stopped feeding early on,stopped feeding early on,NA,0,0,After,0
+Eagle,Plastic,Scotts plastic,9,1,4.1,7.4,2.3,11.7,12.5,12.5,0.259,0.253,12,11.3,12.9,10.9,0.268,21,0,-21,,,NA,0,0,After,0
+Eagle,Plastic,Scotts plastic,10,1,4.1,9.1,4.3,11.7,12.5,12.5,0.259,0.253,12,11.3,12.9,10.9,0.268,33,0,-33,damaged cirri,,3,NA,3,Before,1
+Eagle,Control,Scotts control,1,4,5,9.6,2.4,4,15.2,15.2,0.297,0.236,12.1,12.1,11.1,11.5,0.268,7,0,-7,stopped feeding halfway through,,0,NA,0,Before,0
+Eagle,Control,Scotts control,2,4,3.4,6,1.3,4,15.2,15.2,0.297,0.236,12.1,12.1,11.1,11.5,0.268,17,19,2,,,NA,0,0,After,0
+Eagle,Control,Scotts control,3,4,4,6.1,2,4,15.2,15.2,0.297,0.236,12.1,12.1,11.1,11.5,0.268,0,0,0,,,NA,0,0,After,0
+Eagle,Control,Scotts control,4,4,4.4,6.2,3,4,15.2,15.2,0.297,0.236,12.1,12.1,11.1,11.5,0.268,22,0,-22,stopped feeding halfway through,,0,NA,0,Before,0
+Eagle,Control,Scotts control,5,4,4.2,6.7,2.4,4,15.2,15.2,0.297,0.236,12.1,12.1,11.1,11.5,0.268,26,29,3,,,0,NA,0,Before,0
+Eagle,Control,Scotts control,6,4,3.8,5.4,2,4,15.2,15.2,0.297,0.236,12.1,12.1,11.1,11.5,0.268,10,0,-10,fed in the last 10 seconds,,0,NA,0,Before,0
+Eagle,Control,Scotts control,7,4,3.6,5.2,1.8,4,15.2,15.2,0.297,0.236,12.1,12.1,11.1,11.5,0.268,33,15,-18,,fed for maybr half the video,0,NA,0,Before,0
+Eagle,Control,Scotts control,8,4,4.7,8.5,5,4,15.2,15.2,0.297,0.236,12.1,12.1,11.1,11.5,0.268,29,33,4,very hard to see,,NA,0,0,After,0
+Eagle,Control,Scotts control,9,4,4.2,8,6,4,15.2,15.2,0.297,0.236,12.1,12.1,11.1,11.5,0.268,6,0,-6,starts feeding in the last 15 seconds,,NA,0,0,After,0
+Eagle,Control,Scotts control,10,4,3.3,5.5,1.1,4,15.2,15.2,0.297,0.236,12.1,12.1,11.1,11.5,0.268,0,0,0,"couldnt really see at all, barely feeding before and after the minute",never feeding ,NA,0,0,After,0
