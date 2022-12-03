@@ -1,0 +1,102 @@
+variable,description,type,values_or_units
+date,date on which data were collected,numerical,yyyy-mm-dd
+site,location at which the data collection took place,categorical,only site of data collection was Wizard Islet
+exposure,"location with the site of data collection, varrying with wave exposure",categorical,exposed; sheltered
+group_name,animal name given to the sampling group,categorical,anemones; nudibranchs; urchins; ghost_shrimp; not available (pre-2022)
+data_collectors,"first names of the students collecting data in a quadrat, separated by "",""",categorical,first names separated by commas; not available (pre-2022)
+transect_number,vertical transect which originates at a numbered tag fixed at 3.7m tidal height,numerical,1 to 50
+tidal_height,tidal height at which the 25x25cm qudrat was placed,ordinal,in meters; 0.2; 0.5; 1; 1.5; 2; 2.5; 3; 3.5
+quadrat_size,size of quadrat used to collect data (i.e. sampling unit),numerical,0.0625m2 (25cmx25cm)
+photos,have photos been taken and archived in Google Drive?,binary,yes/no; 1/0; not available (pre-2022)
+Abietinaria_spp,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Acanthodoris_hudsoni,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Aeolidia_papillosa,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Amphipoda,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Amphiporus_imparispinosus,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Anisodoris nobilis,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Anthopleura_elegantissima,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Anthopleura_xanthogrammica,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Asterina_minata,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Astrea_gibberosa,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Balanus_crenatus,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Balanus_glandula,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Bryozoa_spp,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+C_finmarkiensis,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Calliostoma_canaliculatum,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Calliostoma_ligatum,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Cancer_oregonensis,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Cancer_productus,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Carcinus_maenus,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Chorilia_longipes,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Chthamalus_dalli,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Cnemidocarpa_finmarkiensis,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Cover_deadbarnacle,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Crepidula_fornicata,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Cryptochiton_stelleri,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Dead_mussel,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Decorator_crab_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Dendrobeania_lichenoides,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Dermasterias_imbricata,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Diaulula_odonoghuei,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Encrusting_colonial_ascidians,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Evasterias_troschelli,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Halichondria_spp,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Haliclona_spp,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Hemigrapsus _oregonensis,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Hemigrapsus_nudus,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Henricia_leviuscula,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Hermissenda_crassicornis,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Hymenamphiastra_cyanocrypta,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Idotea_wosnesenskii,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Juvenile_limpet,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Katharina_tunicata,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+L_bellus_bellus,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Lacuna_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Lasaea_rubra,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Lirabuccinum_dirum,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Littorina_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Lottia_digitalis,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Lottia_pelta,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Lumberneridae_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Mediaster_aequalis,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Membranipora_membranacea,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Metridium_spp,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Mitella_polymerus,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Mopalia_muscosa,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Mytilus_californianus,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Mytilus_edulis,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Nemertea_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Nereis_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Nucella_emarginata,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Nucella_lamellose,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Nucella_ostrina,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Oedignathus_inermis,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Onchidella_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Ophilitaspongia_pennata,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Other_Pagurus_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Pagurus_granosimanus,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Paranemertes_peregrina,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Petrolisthes_eromerius,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Phascolosoma_agassizii,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Pholadidae_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Pisaster_brevispinus,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Pisaster_ochraceous,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Pododesmus_machrochisma,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Pugettia gracilis,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Pugettia_producta,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Pycnoclavella_stanleyi,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Pycnopodia_helianthoides,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Rostanga_pulchra,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Schizoporella_uncornis,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Sculpin_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Semibalanus_cariosus,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Serpula_vermicularis,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Sertularella_spp,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+Spirobis_spp,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Stronglyocentrotus_purpuratus,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Tectura_persona,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Tectura_scutum,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Tegula_funebralis,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Tonicella_lineata,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
+Tunicates,measured within 25x25cm quadrat,numerical,percent cover (0-100); NA = not collected
+white_sponge,measured within 25x25cm quadrat,binary,"presence/absence; 1/0, NA = not collected"
