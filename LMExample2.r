@@ -87,8 +87,7 @@ plot(algaeLine)
 
 algaeLine <- ggpredict(mod, terms = c("concentrationOfAlgae","temperature"), 
 	typical = 'mean')
-plot(algaeLine) + 
-	geom_point(data = my.data,aes(x = concentrationOfAlgae, y = growth, colour = 1))
+plot(algaeLine)
 	
 pred.data <- data.frame(algaeLine)
 
